@@ -14,5 +14,8 @@ rev = "v4.30.0"
 name = "OctagonCI"
 roots = [
   "WedgeSplitAlgebraV2",
-  "WedgeSplitChain"
+  "WedgeSplitChain",
+  "OctagonBase",
+  "SecondSectorDefectStandalone",
+  "ThirdSectorDefectStandalone"
 ]
