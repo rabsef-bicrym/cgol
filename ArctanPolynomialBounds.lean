@@ -27,28 +27,36 @@ lemma hasDerivAt_upperGap (x : ℝ) :
     HasDerivAt upperGap (x ^ 6 / (1 + x ^ 2)) x := by
   have hpoly : HasDerivAt
       (fun y : ℝ => y - y ^ 3 / 3 + y ^ 5 / 5)
-      (1 - 3 * x ^ 2 / 3 + 5 * x ^ 4 / 5) x := by
-    convert ((hasDerivAt_id x).sub (((hasDerivAt_id x).pow 3).div_const 3)).add
-      (((hasDerivAt_id x).pow 5).div_const 5) using 1 <;> ring
+      (1 - x ^ 2 + x ^ 4) x := by
+    have h := ((hasDerivAt_id x).sub
+      (((hasDerivAt_id x).pow 3).div_const 3)).add
+      (((hasDerivAt_id x).pow 5).div_const 5)
+    convert h using 1 <;> simp <;> ring
   have hraw := hpoly.sub (Real.hasDerivAt_arctan x)
+  change HasDerivAt
+    ((fun y : ℝ => y - y ^ 3 / 3 + y ^ 5 / 5) - Real.arctan)
+    (x ^ 6 / (1 + x ^ 2)) x
   convert hraw using 1
-  · rfl
-  · have hden : 1 + x ^ 2 ≠ 0 := by positivity
-    field_simp [hden]
-    ring
+  have hden : 1 + x ^ 2 ≠ 0 := by positivity
+  field_simp [hden]
+  ring
 
 lemma hasDerivAt_lowerGap (x : ℝ) :
     HasDerivAt lowerGap (x ^ 4 / (1 + x ^ 2)) x := by
   have hpoly : HasDerivAt
       (fun y : ℝ => y - y ^ 3 / 3)
-      (1 - 3 * x ^ 2 / 3) x := by
-    convert (hasDerivAt_id x).sub (((hasDerivAt_id x).pow 3).div_const 3) using 1 <;> ring
+      (1 - x ^ 2) x := by
+    have h := (hasDerivAt_id x).sub
+      (((hasDerivAt_id x).pow 3).div_const 3)
+    convert h using 1 <;> simp <;> ring
   have hraw := (Real.hasDerivAt_arctan x).sub hpoly
+  change HasDerivAt
+    (Real.arctan - (fun y : ℝ => y - y ^ 3 / 3))
+    (x ^ 4 / (1 + x ^ 2)) x
   convert hraw using 1
-  · rfl
-  · have hden : 1 + x ^ 2 ≠ 0 := by positivity
-    field_simp [hden]
-    ring
+  have hden : 1 + x ^ 2 ≠ 0 := by positivity
+  field_simp [hden]
+  ring
 
 lemma differentiable_upperGap : Differentiable ℝ upperGap :=
   fun x => (hasDerivAt_upperGap x).differentiableAt
@@ -68,20 +76,16 @@ lemma deriv_lowerGap_nonneg (x : ℝ) : 0 ≤ deriv lowerGap x := by
 theorem arctan_le_quintic (x : ℝ) (hx : 0 ≤ x) :
     Real.arctan x ≤ x - x ^ 3 / 3 + x ^ 5 / 5 := by
   have hgrow := mul_sub_le_image_sub_of_le_deriv differentiable_upperGap
-    (C := 0) deriv_upperGap_nonneg hx
-  have hzero : upperGap 0 = 0 := by simp [upperGap]
-  dsimp [upperGap] at hgrow ⊢
-  rw [hzero] at hgrow
+    (C := 0) deriv_upperGap_nonneg (x := 0) (y := x) hx
+  norm_num [upperGap] at hgrow ⊢
   linarith
 
 /-- Alternating cubic lower bound, valid for every nonnegative argument. -/
 theorem cubic_le_arctan (x : ℝ) (hx : 0 ≤ x) :
     x - x ^ 3 / 3 ≤ Real.arctan x := by
   have hgrow := mul_sub_le_image_sub_of_le_deriv differentiable_lowerGap
-    (C := 0) deriv_lowerGap_nonneg hx
-  have hzero : lowerGap 0 = 0 := by simp [lowerGap]
-  dsimp [lowerGap] at hgrow ⊢
-  rw [hzero] at hgrow
+    (C := 0) deriv_lowerGap_nonneg (x := 0) (y := x) hx
+  norm_num [lowerGap] at hgrow ⊢
   linarith
 
 end
