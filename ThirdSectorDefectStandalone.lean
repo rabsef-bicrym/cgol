@@ -112,7 +112,7 @@ lemma third_sector_min_ge_s_add_one
   have hN0 : 0 ≤ N := le_trans hdiff.le hDN
   have hA : 2 ≤ 1 + K ^ 2 := by linarith
   have hprod : 2 * D ≤ (1 + K ^ 2) * N := by
-    exact mul_le_mul hA hDN hdiff.le (by norm_num)
+    exact mul_le_mul hA hDN hdiff.le (by positivity)
   have hfirst : s ≤ s * K / D := by
     have hm := mul_le_mul_of_nonneg_left hratio1 s_nonneg
     simpa [mul_div_assoc] using hm
