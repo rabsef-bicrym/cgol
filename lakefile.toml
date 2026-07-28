@@ -22,5 +22,8 @@ roots = [
   "ThirdSectorDefectStandalone",
   "SmallGapBernsteinStandalone",
   "SmallGapReserveStandalone",
-  "AllSectorDefectStandalone"
+  "AllSectorDefectStandalone",
+  "PhaseSectorAlgebraStandalone",
+  "OctagonSupportNormalizationStandalone",
+  "PhaseGapBridgeStandalone"
 ]
