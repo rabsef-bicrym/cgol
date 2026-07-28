@@ -3,6 +3,8 @@ import FirstSectorDefectStandalone
 import SecondSectorDefectStandalone
 import ThirdSectorDefectStandalone
 
+set_option linter.unusedVariables false
+
 /-!
 # Exhaustive octagonal phase-defect theorem
 
@@ -45,8 +47,9 @@ lemma small_boundary_wedge
   have hd := d_quadratic
   dsimp [sectorMinimum, wedge]
   field_simp [hsin]
-  ring_nf at htrig hd ⊢
-  nlinarith
+  linear_combination
+    (-Real.cos alpha - 2 * Real.sin alpha * d) * htrig +
+    (-Real.cos alpha * Real.sin alpha ^ 2) * hd
 
 lemma phaseDefect_small_eq
     (alpha : ℝ) (hsin : Real.sin alpha ≠ 0) :
@@ -93,7 +96,7 @@ theorem all_sector_defect_nonneg
   · have hres : residual alpha = alpha := by simp [residual, h1]
     rw [hres]
     rcases ha0.eq_or_lt with rfl | hapos
-    · norm_num [phaseDefect, sectorMinimum, wedge, cap]
+    · simpa [phaseDefect, sectorMinimum, wedge] using cap_nonneg
     · have hsin : 0 < Real.sin alpha :=
         Real.sin_pos_of_pos_of_lt_pi hapos haπ
       have hu0 : 0 ≤ alpha / Real.pi := div_nonneg hapos.le Real.pi_pos.le
@@ -142,8 +145,10 @@ theorem all_sector_reserve
   · have hres : residual alpha = alpha := by simp [residual, h1]
     rw [hres]
     rcases ha0.eq_or_lt with rfl | hapos
-    · norm_num [requiredReserve, phaseDefect, sectorMinimum, wedge,
-        smallGapReserve, cap]
+    · have hcap : smallGapReserve ≤ cap := by
+        dsimp [smallGapReserve]
+        nlinarith [cap_lower]
+      simpa [requiredReserve, phaseDefect, sectorMinimum, wedge] using hcap
     · have hsin : 0 < Real.sin alpha :=
         Real.sin_pos_of_pos_of_lt_pi hapos haπ
       have hu0 : 0 ≤ alpha / Real.pi := div_nonneg hapos.le Real.pi_pos.le
@@ -153,12 +158,15 @@ theorem all_sector_reserve
       have hreserve := small_gap_reserve (alpha / Real.pi) hu0 huq
       have hfactor : 0 ≤ 1 - 4 * (alpha / Real.pi) := by nlinarith
       rw [phaseDefect_small_eq alpha hsin.ne']
-      simp [requiredReserve, max_eq_left hfactor]
+      dsimp [requiredReserve]
+      rw [max_eq_left hfactor]
       exact hreserve
   · have hquarter : Real.pi / 4 < alpha := lt_of_not_ge h1
+    have hstrict : 1 < 4 * (alpha / Real.pi) := by
+      rw [show 4 * (alpha / Real.pi) = (4 * alpha) / Real.pi by ring]
+      apply (lt_div_iff₀ Real.pi_pos).2
+      nlinarith
     have hfactor : 1 - 4 * (alpha / Real.pi) ≤ 0 := by
-      apply (sub_nonpos.mpr)
-      apply (one_le_div Real.pi_pos).2
       nlinarith
     have hzero : requiredReserve alpha = 0 := by
       simp [requiredReserve, max_eq_right hfactor]
