@@ -1,0 +1,46 @@
+name: Public octagon Lean CI
+
+on:
+  push:
+    branches: [octagon-lean-ci-2026-07-28]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - name: Install elan
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve mathlib
+        shell: bash
+        run: |
+          set -euo pipefail
+          lake update
+          lake exe cache get
+      - name: Kernel-check split algebra and induction
+        shell: bash
+        run: |
+          set -o pipefail
+          lake build WedgeSplitAlgebraV2 WedgeSplitChain --wfail 2>&1 | tee octagon-lean.log
+      - name: Reject proof holes
+        shell: bash
+        run: |
+          ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
+            WedgeSplitAlgebraV2.lean WedgeSplitChain.lean
+      - name: Upload logs
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: octagon-lean-logs
+          path: octagon-lean.log
+          if-no-files-found: ignore
