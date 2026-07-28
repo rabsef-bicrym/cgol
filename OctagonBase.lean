@@ -71,7 +71,8 @@ lemma c_pos : 0 < c := by
 lemma c_nonneg : 0 ≤ c := c_pos.le
 
 lemma c_eq_one_sub_d : c = 1 - d := by
-  simp [c, d]
+  dsimp [c, d]
+  ring
 
 lemma d_quadratic : d ^ 2 + 2 * d = 1 := by
   dsimp [d]
