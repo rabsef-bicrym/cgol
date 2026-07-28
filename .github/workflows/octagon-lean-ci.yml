@@ -1,4 +1,4 @@
-name: Public octagon small-gap Lean CI
+name: Public octagon all-sector Lean CI
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: public-octagon-smallgap-${{ github.event.pull_request.number || github.ref }}
+  group: public-octagon-allsector-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -40,21 +40,24 @@ jobs:
           set -euo pipefail
           if [ ! -d .lake/packages/mathlib ]; then lake update; fi
           if [ ! -d .lake/packages/mathlib/.lake/build/lib/lean/Mathlib ]; then lake exe cache get; fi
-      - name: Kernel-check small-gap reserve
+      - name: Kernel-check exhaustive phase theorem
         shell: bash
         run: |
           set -o pipefail
-          lake build OctagonCI --wfail 2>&1 | tee smallgap-lean.log
+          lake build OctagonCI --wfail 2>&1 | tee allsector-lean.log
       - name: Reject proof holes
         shell: bash
         run: |
           ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
-            OctagonBase.lean SmallGapBernsteinStandalone.lean \
-            SmallGapReserveStandalone.lean
+            OctagonBase.lean ArctanPolynomialBounds.lean FirstSectorAlgebra.lean \
+            FirstSectorScalar.lean FirstSectorDefectStandalone.lean \
+            SecondSectorDefectStandalone.lean ThirdSectorDefectStandalone.lean \
+            SmallGapBernsteinStandalone.lean SmallGapReserveStandalone.lean \
+            AllSectorDefectStandalone.lean
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: octagon-smallgap-lean-logs
-          path: smallgap-lean.log
+          name: octagon-allsector-lean-logs
+          path: allsector-lean.log
           if-no-files-found: ignore
