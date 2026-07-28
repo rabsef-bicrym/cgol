@@ -84,46 +84,47 @@ lemma sectorMinimum_third_formula
   rw [third_angle_sin, third_angle_cos]
   have hsne : s ≠ 0 := s_pos.ne'
   field_simp [hdiff, hsne]
-  nlinarith [s_sq]
+  ring_nf
+  rw [s_sq]
+  ring
 
 lemma third_sector_min_ge_s_add_one
     (beta : ℝ) (hb0 : 0 ≤ beta) (hbq : beta < Real.pi / 4) :
     s + 1 ≤ sectorMinimum (3 * Real.pi / 4 + beta) beta := by
-  have hs0 := sin_beta_nonneg beta hb0 hbq
-  have hdiff : 0 < Real.cos beta - Real.sin beta :=
-    sub_pos.mpr (sin_beta_lt_cos_beta beta hb0 hbq)
-  have hsupportDiff :
-      Real.cos beta - Real.sin beta ≤
-        Real.cos beta + d * Real.sin beta := by
-    dsimp [d]
+  let K : ℝ := Real.cos beta + d * Real.sin beta
+  let D : ℝ := Real.cos beta - Real.sin beta
+  let N : ℝ := Real.sin beta + Real.cos beta
+  have hdiff : 0 < D := by
+    dsimp [D]
+    exact sub_pos.mpr (sin_beta_lt_cos_beta beta hb0 hbq)
+  have hsupportDiff : D ≤ K := by
+    dsimp [D, K, d]
+    have hs0 := sin_beta_nonneg beta hb0 hbq
     nlinarith [s_pos]
-  have hratio1 :
-      1 ≤ (Real.cos beta + d * Real.sin beta) /
-        (Real.cos beta - Real.sin beta) := by
-    exact (le_div_iff₀ hdiff).2 (by linarith)
-  have hsquare := support_sq_ge_one beta hb0 hbq
-  have hratio2 :
-      1 ≤ (Real.sin beta + Real.cos beta) /
-        (Real.cos beta - Real.sin beta) := by
-    exact (le_div_iff₀ hdiff).2 (by linarith)
-  have hleft :
-      2 ≤ 1 + (Real.cos beta + d * Real.sin beta) ^ 2 := by
-    linarith
-  have hnonneg :
-      0 ≤ 1 + (Real.cos beta + d * Real.sin beta) ^ 2 := by
-    positivity
-  have hprod2 :
-      2 ≤ (1 + (Real.cos beta + d * Real.sin beta) ^ 2) *
-        ((Real.sin beta + Real.cos beta) /
-          (Real.cos beta - Real.sin beta)) := by
-    have hmul := mul_le_mul hleft hratio2 (by norm_num) hnonneg
-    nlinarith
+  have hratio1 : 1 ≤ K / D :=
+    (le_div_iff₀ hdiff).2 (by simpa using hsupportDiff)
+  have hsquare : 1 ≤ K ^ 2 := by
+    dsimp [K]
+    exact support_sq_ge_one beta hb0 hbq
+  have hDN : D ≤ N := by
+    dsimp [D, N]
+    nlinarith [sin_beta_nonneg beta hb0 hbq]
+  have hN0 : 0 ≤ N := le_trans hdiff.le hDN
+  have hA : 2 ≤ 1 + K ^ 2 := by linarith
+  have hprod : 2 * D ≤ (1 + K ^ 2) * N := by
+    exact mul_le_mul hA hDN hdiff.le (by norm_num)
+  have hfirst : s ≤ s * K / D := by
+    have hm := mul_le_mul_of_nonneg_left hratio1 s_nonneg
+    simpa [mul_div_assoc] using hm
+  have hsecond : 1 ≤ (1 + K ^ 2) * N / (2 * D) := by
+    apply (le_div_iff₀ (mul_pos (by norm_num) hdiff)).2
+    simpa [one_mul, mul_assoc] using hprod
   rw [sectorMinimum_third_formula beta hdiff.ne']
-  have hsratio := mul_le_mul_of_nonneg_left hratio1 s_nonneg
-  nlinarith
+  change s + 1 ≤ s * K / D + (1 + K ^ 2) * N / (2 * D)
+  linarith
 
 lemma third_baseline_le_s_add_one
-    (beta : ℝ) (hb0 : 0 ≤ beta) (hbq : beta < Real.pi / 4) :
+    (beta : ℝ) (hbq : beta < Real.pi / 4) :
     phaseSlope * ((3 * Real.pi / 4 + beta) / Real.pi) - cap ≤ s + 1 := by
   have hu : (3 * Real.pi / 4 + beta) / Real.pi ≤ 1 := by
     apply (div_le_one Real.pi_pos).2
@@ -140,7 +141,7 @@ theorem third_sector_defect_nonneg
     0 ≤ sectorMinimum (3 * Real.pi / 4 + beta) beta -
       (phaseSlope * ((3 * Real.pi / 4 + beta) / Real.pi) - cap) := by
   have hmin := third_sector_min_ge_s_add_one beta hb0 hbq
-  have hbase := third_baseline_le_s_add_one beta hb0 hbq
+  have hbase := third_baseline_le_s_add_one beta hbq
   linarith
 
 end
