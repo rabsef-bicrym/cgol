@@ -50,7 +50,6 @@ lemma first_angle_cos (beta : ℝ) :
   dsimp [s]
   ring
 
-/-- Pure algebra after writing `S = sin beta`, `C = cos beta`. -/
 lemma first_wedge_algebra
     (S C : ℝ) (hCS : C + S ≠ 0)
     (htrig : S ^ 2 + C ^ 2 = 1) :
@@ -72,7 +71,7 @@ lemma firstLhs_ratio
   have hunit : C ^ 2 + S ^ 2 ≠ 0 := by
     have : C ^ 2 + S ^ 2 = 1 := by nlinarith [htrig]
     nlinarith
-  dsimp [firstLhs]
+  dsimp [firstLhs, c, d]
   field_simp [hC, hCS, hunit]
   linear_combination
     (-S * (C + S) ^ 2 * (s - 1)) * htrig
@@ -85,7 +84,6 @@ lemma first_wedge_rewrite
       2 * (C + d * S) / (s * (C + S)) -
         (1 + (C + d * S) ^ 2) * (C - S) / (2 * (C + S)) := by
   field_simp [hCS, s_pos.ne']
-  ring
 
 lemma first_sector_formula
     (beta : ℝ)
@@ -103,19 +101,21 @@ lemma first_sector_formula
   have hw := first_wedge_algebra S C hCS htrig
   have hl := firstLhs_ratio S C hC hCS htrig
   have hr := first_wedge_rewrite S C hCS
-  dsimp [sectorMinimum, wedge]
-  rw [first_angle_sin, first_angle_cos]
-  change
-    (C + d * S) / ((s / 2) * (C + S)) -
-        (1 + (C + d * S) ^ 2) * ((s / 2) * (C - S)) /
-          (2 * ((s / 2) * (C + S))) =
-      d + firstLhs (Real.tan beta)
-  rw [hr, Real.tan_eq_sin_div_cos]
-  change
-    2 * (C + d * S) / (s * (C + S)) -
-        (1 + (C + d * S) ^ 2) * (C - S) / (2 * (C + S)) =
-      d + firstLhs (S / C)
-  rw [hw, hl]
+  have hraw :
+      sectorMinimum (Real.pi / 4 + beta) beta =
+        d + firstLhs (S / C) := by
+    dsimp [sectorMinimum, wedge]
+    rw [first_angle_sin, first_angle_cos]
+    simp only [one_mul, one_pow]
+    calc
+      (C + d * S) / ((s / 2) * (C + S)) -
+          (1 + (C + d * S) ^ 2) * ((s / 2) * (C - S)) /
+            (2 * ((s / 2) * (C + S))) =
+        2 * (C + d * S) / (s * (C + S)) -
+          (1 + (C + d * S) ^ 2) * (C - S) / (2 * (C + S)) := hr
+      _ = d + d * S * (C + S) + c ^ 2 * S / (C + S) := hw
+      _ = d + firstLhs (S / C) := by rw [hl]
+  simpa [S, C, Real.tan_eq_sin_div_cos] using hraw
 
 lemma phaseSlope_eq_four_c : phaseSlope = 4 * c := by
   rfl
@@ -125,7 +125,6 @@ lemma phase_beta_identity (beta : ℝ) :
   rw [phaseSlope_eq_four_c]
   dsimp [exactK]
   field_simp [Real.pi_ne_zero]
-  ring
 
 lemma first_baseline_identity (beta : ℝ) :
     phaseSlope * ((Real.pi / 4 + beta) / Real.pi) - cap =
@@ -134,7 +133,6 @@ lemma first_baseline_identity (beta : ℝ) :
       (Real.pi / 4 + beta) / Real.pi =
         (1 : ℝ) / 4 + beta / Real.pi := by
     field_simp [Real.pi_ne_zero]
-    ring
   have hconst : phaseSlope / 4 - cap = d := by
     dsimp [phaseSlope, cap, d]
     nlinarith [s_sq]
@@ -144,7 +142,6 @@ lemma first_baseline_identity (beta : ℝ) :
     _ = (phaseSlope / 4 - cap) + phaseSlope * (beta / Real.pi) := by ring
     _ = d + exactK * beta := by rw [hconst, phase_beta_identity]
 
-/-- Nonnegativity of the phase defect on the first large sector. -/
 theorem first_sector_defect_nonneg
     (beta : ℝ) (hb0 : 0 ≤ beta) (hbq : beta ≤ Real.pi / 4) :
     0 ≤ sectorMinimum (Real.pi / 4 + beta) beta -
@@ -166,7 +163,7 @@ theorem first_sector_defect_nonneg
     · nlinarith [hbq, Real.pi_pos]
   rw [hatan] at hscalar
   rw [first_sector_formula beta hcos.ne' hsum.ne', first_baseline_identity]
-  exact sub_nonneg.mpr hscalar
+  nlinarith
 
 end
 
