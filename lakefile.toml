@@ -18,6 +18,7 @@ roots = [
   "OctagonBase",
   "ArctanPolynomialBounds",
   "FirstSectorAlgebra",
+  "FirstSectorScalar",
   "SecondSectorDefectStandalone",
   "ThirdSectorDefectStandalone"
 ]
