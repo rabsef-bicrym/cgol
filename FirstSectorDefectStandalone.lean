@@ -114,7 +114,7 @@ lemma first_sector_formula
         2 * (C + d * S) / (s * (C + S)) -
           (1 + (C + d * S) ^ 2) * (C - S) / (2 * (C + S)) := hr
       _ = d + d * S * (C + S) + c ^ 2 * S / (C + S) := hw
-      _ = d + firstLhs (S / C) := by rw [hl]
+      _ = d + firstLhs (S / C) := by rw [hl]; ring
   simpa [S, C, Real.tan_eq_sin_div_cos] using hraw
 
 lemma phaseSlope_eq_four_c : phaseSlope = 4 * c := by
