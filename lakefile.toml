@@ -16,6 +16,7 @@ roots = [
   "WedgeSplitAlgebraV2",
   "WedgeSplitChain",
   "OctagonBase",
+  "ArctanPolynomialBounds",
   "SecondSectorDefectStandalone",
   "ThirdSectorDefectStandalone"
 ]
