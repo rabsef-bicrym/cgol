@@ -1,7 +1,15 @@
 name: Public octagon Lean CI
 
 on:
+  push:
+    branches: [octagon-lean-ci-2026-07-28]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+
+concurrency:
+  group: public-octagon-lean-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -25,16 +33,17 @@ jobs:
           set -euo pipefail
           lake update
           lake exe cache get
-      - name: Kernel-check split algebra and induction
+      - name: Kernel-check octagonal bridge stack
         shell: bash
         run: |
           set -o pipefail
-          lake build WedgeSplitAlgebraV2 WedgeSplitChain --wfail 2>&1 | tee octagon-lean.log
+          lake build OctagonCI --wfail 2>&1 | tee octagon-lean.log
       - name: Reject proof holes
         shell: bash
         run: |
           ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
-            WedgeSplitAlgebraV2.lean WedgeSplitChain.lean
+            WedgeSplitAlgebraV2.lean WedgeSplitChain.lean OctagonBase.lean \
+            SecondSectorDefectStandalone.lean ThirdSectorDefectStandalone.lean
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
