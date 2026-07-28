@@ -3,7 +3,7 @@ import OctagonBase
 /-!
 # Exact algebraic certificates for the first large octagonal sector
 
-The transcendental estimate is separated from two rational inequalities.  Each
+The transcendental estimate is separated from two rational inequalities. Each
 polynomial is written in Bernstein form on its interval, so positivity follows
 from positive exact coefficients and nonnegative Bernstein basis functions.
 -/
@@ -14,7 +14,6 @@ noncomputable section
 
 open OctagonBase
 
-/-- The metric expression arising after `t = tan beta`. -/
 def firstLhs (t : ℝ) : ℝ :=
   d * t * (1 + t) / (1 + t ^ 2) + c ^ 2 * t / (1 + t)
 
@@ -22,10 +21,8 @@ def quintic (t : ℝ) : ℝ := t - t ^ 3 / 3 + t ^ 5 / 5
 
 def cubic (t : ℝ) : ℝ := t - t ^ 3 / 3
 
-/-- Coefficient obtained from the rigorous lower bound `3.14 < pi`. -/
 def lowK : ℝ := 200 * c / 157
 
-/-- Coefficient obtained from the rigorous upper bound `pi < 3.15`. -/
 def highK : ℝ := 80 * c / 63
 
 def lowPoly (t : ℝ) : ℝ :=
@@ -51,7 +48,6 @@ def highX (t : ℝ) : ℝ := (5 * t - 3) / 2
 
 def u (t : ℝ) : ℝ := (1 - t) / (1 + t)
 
--- Bernstein coefficients on `t in [0, 3/5]`.
 def lb0 : ℝ := 1155 - 813 * s
 def lb1 : ℝ := 4857 / 5 - 23829 * s / 35
 def lb2 : ℝ := 28506 / 35 - 99054 * s / 175
@@ -88,6 +84,14 @@ lemma lowPoly_nonneg (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ (3 : ℝ) / 5) :
   have hx0 : 0 ≤ lowX t := by dsimp [lowX]; positivity
   have hx1 : lowX t ≤ 1 := by dsimp [lowX]; nlinarith
   have hy0 : 0 ≤ 1 - lowX t := sub_nonneg.mpr hx1
+  have hb0 : 0 ≤ lb0 := lb0_pos.le
+  have hb1 : 0 ≤ lb1 := lb1_pos.le
+  have hb2 : 0 ≤ lb2 := lb2_pos.le
+  have hb3 : 0 ≤ lb3 := lb3_pos.le
+  have hb4 : 0 ≤ lb4 := lb4_pos.le
+  have hb5 : 0 ≤ lb5 := lb5_pos.le
+  have hb6 : 0 ≤ lb6 := lb6_pos.le
+  have hb7 : 0 ≤ lb7 := lb7_pos.le
   rw [low_bernstein_identity]
   have h0 : 0 ≤ lb0 * (1 - lowX t) ^ 7 := by positivity
   have h1 : 0 ≤ 7 * lb1 * lowX t * (1 - lowX t) ^ 6 := by positivity
@@ -102,13 +106,14 @@ lemma lowPoly_nonneg (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ (3 : ℝ) / 5) :
 lemma low_gap_identity (t : ℝ) (h1 : t + 1 ≠ 0) (h2 : t ^ 2 + 1 ≠ 0) :
     firstLhs t - lowK * quintic t =
       t * lowPoly t / (471 * (t + 1) * (t ^ 2 + 1)) := by
+  have h1' : 1 + t ≠ 0 := by simpa [add_comm] using h1
+  have h2' : 1 + t ^ 2 ≠ 0 := by simpa [add_comm] using h2
   dsimp [firstLhs, lowK, quintic, lowPoly, c, d]
-  field_simp [h1, h2]
+  field_simp [h1, h1', h2, h2']
   ring_nf
   rw [s_sq]
   ring
 
-/-- Rational lower certificate on the lower half of the interval. -/
 theorem low_gap_nonneg (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ (3 : ℝ) / 5) :
     lowK * quintic t ≤ firstLhs t := by
   have h1 : t + 1 ≠ 0 := by positivity
@@ -118,7 +123,6 @@ theorem low_gap_nonneg (t : ℝ) (ht0 : 0 ≤ t) (ht1 : t ≤ (3 : ℝ) / 5) :
   rw [← sub_nonneg, low_gap_identity t h1 h2]
   exact div_nonneg (mul_nonneg ht0 hp) hden.le
 
--- Bernstein coefficients on `t in [3/5, 1]`.
 def hb0 : ℝ := 272768 / 625 - 172672 * s / 625
 def hb1 : ℝ := 66416 / 125 - 40768 * s / 125
 def hb2 : ℝ := 47252 / 75 - 27784 * s / 75
@@ -146,6 +150,11 @@ lemma highPoly_nonneg (t : ℝ) (ht0 : (3 : ℝ) / 5 ≤ t) (ht1 : t ≤ 1) :
   have hx0 : 0 ≤ highX t := by dsimp [highX]; nlinarith
   have hx1 : highX t ≤ 1 := by dsimp [highX]; nlinarith
   have hy0 : 0 ≤ 1 - highX t := sub_nonneg.mpr hx1
+  have hb0n : 0 ≤ hb0 := hb0_pos.le
+  have hb1n : 0 ≤ hb1 := hb1_pos.le
+  have hb2n : 0 ≤ hb2 := hb2_pos.le
+  have hb3n : 0 ≤ hb3 := hb3_pos.le
+  have hb4n : 0 ≤ hb4 := hb4_pos.le
   rw [high_bernstein_identity]
   have h0 : 0 ≤ hb0 * (1 - highX t) ^ 4 := by positivity
   have h1 : 0 ≤ 4 * hb1 * highX t * (1 - highX t) ^ 3 := by positivity
@@ -157,21 +166,24 @@ lemma highPoly_nonneg (t : ℝ) (ht0 : (3 : ℝ) / 5 ≤ t) (ht1 : t ≤ 1) :
 lemma high_gap_identity (t : ℝ) (h1 : t + 1 ≠ 0) (h2 : t ^ 2 + 1 ≠ 0) :
     firstLhs t - c + highK * cubic (u t) =
       (1 - t) * highPoly t / (189 * (t + 1) ^ 3 * (t ^ 2 + 1)) := by
+  have h1' : 1 + t ≠ 0 := by simpa [add_comm] using h1
+  have h2' : 1 + t ^ 2 ≠ 0 := by simpa [add_comm] using h2
   dsimp [firstLhs, highK, cubic, u, highPoly, c, d]
-  field_simp [h1, h2]
+  field_simp [h1, h1', h2, h2']
   ring_nf
   rw [s_sq]
   ring
 
-/-- Rational lower certificate on the upper half of the interval. -/
 theorem high_gap_nonneg (t : ℝ) (ht0 : (3 : ℝ) / 5 ≤ t) (ht1 : t ≤ 1) :
     c - highK * cubic (u t) ≤ firstLhs t := by
-  have ht_nonneg : 0 ≤ t := by nlinarith
   have h1 : t + 1 ≠ 0 := by positivity
   have h2 : t ^ 2 + 1 ≠ 0 := by positivity
   have hden : 0 < 189 * (t + 1) ^ 3 * (t ^ 2 + 1) := by positivity
   have hp := highPoly_nonneg t ht0 ht1
-  rw [← sub_nonneg, sub_sub, add_comm (firstLhs t - c), high_gap_identity t h1 h2]
+  have hrearrange :
+      firstLhs t - (c - highK * cubic (u t)) =
+        firstLhs t - c + highK * cubic (u t) := by ring
+  rw [← sub_nonneg, hrearrange, high_gap_identity t h1 h2]
   exact div_nonneg (mul_nonneg (sub_nonneg.mpr ht1) hp) hden.le
 
 end
