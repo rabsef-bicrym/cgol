@@ -2,14 +2,6 @@ import ArctanPolynomialBounds
 import FirstSectorAlgebra
 import Mathlib.Analysis.Real.Pi.Bounds
 
-/-!
-# Complete scalar inequality for the first large octagonal sector
-
-For `0 <= t <= 1`, the exact rational expression `firstLhs t` dominates
-`(4 c / pi) * arctan t`. The proof uses a quintic arctangent upper bound on
-`[0,3/5]` and the complementary cubic bound on `[3/5,1]`.
--/
-
 namespace FirstSectorScalar
 
 noncomputable section
@@ -36,24 +28,30 @@ lemma highK_nonneg : 0 ≤ highK := by
 lemma exactK_le_lowK : exactK ≤ lowK := by
   have hpi : (157 : ℝ) / 50 ≤ Real.pi := by
     have h := Real.pi_gt_d2.le
-    convert h using 1 <;> norm_num
+    convert h using 1
+    all_goals norm_num
+  have hcoef : 0 ≤ 200 * c / 157 := by
+    exact div_nonneg (mul_nonneg (by norm_num) c_nonneg) (by norm_num)
   apply (div_le_iff₀ Real.pi_pos).2
   dsimp [exactK, lowK]
   calc
     4 * c = (200 * c / 157) * ((157 : ℝ) / 50) := by ring
     _ ≤ (200 * c / 157) * Real.pi :=
-      mul_le_mul_of_nonneg_left hpi (by positivity)
+      mul_le_mul_of_nonneg_left hpi hcoef
 
 lemma highK_le_exactK : highK ≤ exactK := by
   have hpi : Real.pi ≤ (63 : ℝ) / 20 := by
     have h := Real.pi_lt_d2.le
-    convert h using 1 <;> norm_num
+    convert h using 1
+    all_goals norm_num
+  have hcoef : 0 ≤ 80 * c / 63 := by
+    exact div_nonneg (mul_nonneg (by norm_num) c_nonneg) (by norm_num)
   apply (le_div_iff₀ Real.pi_pos).2
   dsimp [exactK, highK]
   calc
     (80 * c / 63) * Real.pi ≤
         (80 * c / 63) * ((63 : ℝ) / 20) :=
-      mul_le_mul_of_nonneg_left hpi (by positivity)
+      mul_le_mul_of_nonneg_left hpi hcoef
     _ = 4 * c := by ring
 
 lemma exactK_mul_pi_div_four : exactK * (Real.pi / 4) = c := by
