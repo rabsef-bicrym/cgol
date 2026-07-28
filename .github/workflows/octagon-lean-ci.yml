@@ -3,10 +3,12 @@ name: Public octagon small-gap Lean CI
 on:
   push:
     branches: [octagon-smallgap-ci-2026-07-28]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: public-octagon-smallgap-${{ github.ref }}
+  group: public-octagon-smallgap-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
