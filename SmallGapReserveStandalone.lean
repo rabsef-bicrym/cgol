@@ -3,6 +3,9 @@ import SmallGapBernsteinStandalone
 import Mathlib.Analysis.Real.Pi.Bounds
 import Mathlib.Analysis.SpecialFunctions.Trigonometric.Bounds
 import Mathlib.Analysis.Complex.Trigonometric
+import Mathlib.Analysis.Convex.SpecificFunctions.Deriv
+
+set_option linter.unnecessarySeqFocus false
 
 namespace SmallGapReserveStandalone
 
@@ -201,7 +204,7 @@ lemma sine_quarter_chord
     apply (div_le_one Real.pi_pos).2
     nlinarith
   have hconc :=
-    (Real.strictConcaveOn_sin_Icc).concaveOn.2
+    strictConcaveOn_sin_Icc.concaveOn.2
       (show (0 : ℝ) ∈ Set.Icc 0 Real.pi by exact ⟨le_rfl, Real.pi_pos.le⟩)
       (show Real.pi / 4 ∈ Set.Icc 0 Real.pi by
         constructor <;> nlinarith [Real.pi_pos])
