@@ -1,10 +1,6 @@
 name: Public octagon Lean CI
 
 on:
-  push:
-    branches: [octagon-lean-ci-2026-07-28]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
