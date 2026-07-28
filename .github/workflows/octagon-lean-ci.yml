@@ -27,12 +27,35 @@ jobs:
           curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Resolve mathlib
+      - name: Restore Lean dependency cache
+        id: lean-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: |
+            ~/.elan/toolchains
+            .lake/packages
+          key: public-octagon-lean-v430-mathlib430
+      - name: Resolve mathlib when absent
         shell: bash
         run: |
           set -euo pipefail
-          lake update
-          lake exe cache get
+          if [ ! -d .lake/packages/mathlib ]; then lake update; fi
+          if [ ! -d .lake/packages/mathlib/.lake/build/lib/lean/Mathlib ]; then lake exe cache get; fi
+      - name: Save Lean dependency cache
+        if: steps.lean-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: |
+            ~/.elan/toolchains
+            .lake/packages
+          key: public-octagon-lean-v430-mathlib430
+      - name: Restore incremental project build
+        uses: actions/cache@v5
+        with:
+          path: .lake/build
+          key: public-octagon-project-${{ hashFiles('*.lean', 'lakefile.toml', 'lean-toolchain') }}
+          restore-keys: |
+            public-octagon-project-
       - name: Kernel-check octagonal bridge stack
         shell: bash
         run: |
