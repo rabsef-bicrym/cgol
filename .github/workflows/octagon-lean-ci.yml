@@ -67,7 +67,8 @@ jobs:
           ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
             WedgeSplitAlgebraV2.lean WedgeSplitChain.lean OctagonBase.lean \
             ArctanPolynomialBounds.lean FirstSectorAlgebra.lean FirstSectorScalar.lean \
-            SecondSectorDefectStandalone.lean ThirdSectorDefectStandalone.lean
+            FirstSectorDefectStandalone.lean SecondSectorDefectStandalone.lean \
+            ThirdSectorDefectStandalone.lean
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
