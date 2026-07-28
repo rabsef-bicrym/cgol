@@ -91,7 +91,8 @@ lemma phaseSlope_div_pi_le_s : phaseSlope / Real.pi ≤ s := by
     dsimp [phaseSlope]
     nlinarith [s_lower]
   have hpi : 2 * s ≤ s * Real.pi := by
-    exact mul_le_mul_of_nonneg_left Real.two_le_pi s_nonneg
+    simpa [mul_comm] using
+      (mul_le_mul_of_nonneg_left Real.two_le_pi s_nonneg)
   apply (div_le_iff₀ Real.pi_pos).2
   nlinarith
 
@@ -102,7 +103,6 @@ lemma second_baseline_identity (beta : ℝ) :
       (Real.pi / 2 + beta) / Real.pi =
         (1 : ℝ) / 2 + beta / Real.pi := by
     field_simp [Real.pi_ne_zero]
-    ring
   have hconst : phaseSlope / 2 - cap = 1 := by
     dsimp [phaseSlope, cap, d]
     nlinarith [s_sq]
@@ -117,27 +117,35 @@ theorem second_sector_min_ge_baseline
       sectorMinimum (Real.pi / 2 + beta) beta := by
   have hcos := cos_beta_pos beta hb0 hbq
   have hsin0 := sin_beta_nonneg beta hb0 hbq
-  have ht0 : 0 ≤ Real.sin beta / Real.cos beta :=
-    div_nonneg hsin0 hcos.le
-  have hsquare := support_sq_ge_one beta hb0 hbq
-  have hmul := mul_le_mul_of_nonneg_right hsquare ht0
+  let T : ℝ := Real.sin beta / Real.cos beta
+  let K : ℝ := Real.cos beta + d * Real.sin beta
+  have hT0 : 0 ≤ T := by
+    dsimp [T]
+    exact div_nonneg hsin0 hcos.le
+  have hKsq : 1 ≤ K ^ 2 := by
+    dsimp [K]
+    exact support_sq_ge_one beta hb0 hbq
+  have hKT : T ≤ K ^ 2 * T := by
+    have := mul_le_mul_of_nonneg_right hKsq hT0
+    simpa using this
+  have hterm : T ≤ (1 + K ^ 2) * T / 2 := by
+    nlinarith
   have hformula := sectorMinimum_second_formula beta hcos.ne'
-  have hminimum :
-      1 + s * (Real.sin beta / Real.cos beta) ≤
-        sectorMinimum (Real.pi / 2 + beta) beta := by
+  have hminimum : 1 + s * T ≤ sectorMinimum (Real.pi / 2 + beta) beta := by
     rw [hformula]
-    dsimp [d]
+    change 1 + s * T ≤ 1 + d * T + (1 + K ^ 2) * T / 2
+    have hds : d + 1 = s := by simp [d]
     nlinarith
   have htan := beta_le_tan_beta beta hb0 hbq
   have hcoeff := phaseSlope_div_pi_le_s
-  have hphase :
-      phaseSlope * (beta / Real.pi) ≤
-        s * (Real.sin beta / Real.cos beta) := by
+  have hphase : phaseSlope * (beta / Real.pi) ≤ s * T := by
     have h1 : phaseSlope * (beta / Real.pi) =
         (phaseSlope / Real.pi) * beta := by ring
     rw [h1]
     have hcoeffBeta := mul_le_mul_of_nonneg_right hcoeff hb0
-    have htanScaled := mul_le_mul_of_nonneg_left htan s_nonneg
+    have htanScaled : s * beta ≤ s * T := by
+      dsimp [T]
+      exact mul_le_mul_of_nonneg_left htan s_nonneg
     nlinarith
   rw [second_baseline_identity]
   linarith
