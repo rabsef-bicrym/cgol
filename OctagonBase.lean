@@ -16,6 +16,9 @@ def s : ℝ := Real.sqrt 2
 /-- `sqrt 2 - 1`. -/
 def d : ℝ := s - 1
 
+/-- `2 - sqrt 2`; equivalently `1 - d`. -/
+def c : ℝ := 2 - s
+
 /-- The octagonal cap `(sqrt 2 - 1)^2`. -/
 def cap : ℝ := d ^ 2
 
@@ -51,11 +54,24 @@ lemma s_upper : s < (3 : ℝ) / 2 := by
   have hrat : 2 < ((3 : ℝ) / 2) ^ 2 := by norm_num
   nlinarith [s_sq, s_nonneg]
 
+lemma s_upper_tight : s < (70711 : ℝ) / 50000 := by
+  have hrat : 2 < ((70711 : ℝ) / 50000) ^ 2 := by norm_num
+  nlinarith [s_sq, s_nonneg]
+
 lemma d_pos : 0 < d := by
   dsimp [d]
   nlinarith [s_lower]
 
 lemma d_nonneg : 0 ≤ d := d_pos.le
+
+lemma c_pos : 0 < c := by
+  dsimp [c]
+  nlinarith [s_upper]
+
+lemma c_nonneg : 0 ≤ c := c_pos.le
+
+lemma c_eq_one_sub_d : c = 1 - d := by
+  simp [c, d]
 
 lemma d_quadratic : d ^ 2 + 2 * d = 1 := by
   dsimp [d]
