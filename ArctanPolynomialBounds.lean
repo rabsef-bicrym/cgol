@@ -21,7 +21,8 @@ lemma hasDerivAt_upperGap (x : ℝ) :
     have h := ((hasDerivAt_id x).sub
       (((hasDerivAt_id x).pow 3).div_const 3)).add
       (((hasDerivAt_id x).pow 5).div_const 5)
-    convert h using 1 <;> simp
+    convert h using 1
+    all_goals simp
   have hraw := hpoly.sub (Real.hasDerivAt_arctan x)
   change HasDerivAt
     ((fun y : ℝ => y - y ^ 3 / 3 + y ^ 5 / 5) - Real.arctan)
@@ -38,7 +39,8 @@ lemma hasDerivAt_lowerGap (x : ℝ) :
       (1 - x ^ 2) x := by
     have h := (hasDerivAt_id x).sub
       (((hasDerivAt_id x).pow 3).div_const 3)
-    convert h using 1 <;> simp
+    convert h using 1
+    all_goals simp
   have hraw := (Real.hasDerivAt_arctan x).sub hpoly
   change HasDerivAt
     (Real.arctan - (fun y : ℝ => y - y ^ 3 / 3))
