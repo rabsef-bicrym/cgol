@@ -1,14 +1,12 @@
-name: Public octagon Lean CI
+name: Public octagon small-gap Lean CI
 
 on:
   push:
-    branches: [octagon-lean-ci-2026-07-28]
-  pull_request:
-    branches: [main]
+    branches: [octagon-smallgap-ci-2026-07-28]
   workflow_dispatch:
 
 concurrency:
-  group: public-octagon-lean-${{ github.event.pull_request.number || github.ref }}
+  group: public-octagon-smallgap-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -28,7 +26,6 @@ jobs:
             | sh -s -- -y --default-toolchain none
           echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
       - name: Restore Lean dependency cache
-        id: lean-cache
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -41,38 +38,21 @@ jobs:
           set -euo pipefail
           if [ ! -d .lake/packages/mathlib ]; then lake update; fi
           if [ ! -d .lake/packages/mathlib/.lake/build/lib/lean/Mathlib ]; then lake exe cache get; fi
-      - name: Save Lean dependency cache
-        if: steps.lean-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
-        with:
-          path: |
-            ~/.elan/toolchains
-            .lake/packages
-          key: public-octagon-lean-v430-mathlib430
-      - name: Restore incremental project build
-        uses: actions/cache@v5
-        with:
-          path: .lake/build
-          key: public-octagon-project-${{ hashFiles('*.lean', 'lakefile.toml', 'lean-toolchain') }}
-          restore-keys: |
-            public-octagon-project-
-      - name: Kernel-check octagonal bridge stack
+      - name: Kernel-check small-gap reserve
         shell: bash
         run: |
           set -o pipefail
-          lake build OctagonCI --wfail 2>&1 | tee octagon-lean.log
+          lake build OctagonCI --wfail 2>&1 | tee smallgap-lean.log
       - name: Reject proof holes
         shell: bash
         run: |
           ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
-            WedgeSplitAlgebraV2.lean WedgeSplitChain.lean OctagonBase.lean \
-            ArctanPolynomialBounds.lean FirstSectorAlgebra.lean FirstSectorScalar.lean \
-            FirstSectorDefectStandalone.lean SecondSectorDefectStandalone.lean \
-            ThirdSectorDefectStandalone.lean
+            OctagonBase.lean SmallGapBernsteinStandalone.lean \
+            SmallGapReserveStandalone.lean
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: octagon-lean-logs
-          path: octagon-lean.log
+          name: octagon-smallgap-lean-logs
+          path: smallgap-lean.log
           if-no-files-found: ignore
