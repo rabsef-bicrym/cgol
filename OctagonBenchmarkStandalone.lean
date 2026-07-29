@@ -1,0 +1,206 @@
+import OctagonBase
+
+/-!
+# Affine benchmark and negative-cell thresholds
+
+These are the exact constants used by the regular-octagon honeycomb ledger.
+The rational brackets are deliberately modest but strong enough to separate
+the phase-classification margins.
+-/
+
+namespace OctagonBenchmarkStandalone
+
+noncomputable section
+
+open Real
+open OctagonBase
+
+def A4 : ℝ := 4
+
+def A5 : ℝ := 1 + 2 * s
+
+def A6 : ℝ := 4 * s - 2
+
+def A7 : ℝ := 6 * s - 5
+
+def A8 : ℝ := 8 * d
+
+def p5 : ℝ := 2 * Real.sqrt A5
+
+def p6 : ℝ := 2 * Real.sqrt A6
+
+def p8 : ℝ := 2 * Real.sqrt A8
+
+def slope : ℝ := (p6 - p8) / 2
+
+def line (n : ℕ) : ℝ := p6 - slope * ((n : ℝ) - 6)
+
+def eta4 : ℝ := (line 4 / 2) ^ 2 - A4
+
+def eta5 : ℝ := (line 5 / 2) ^ 2 - A5
+
+lemma s_lower_tight : (1414213 : ℝ) / 1000000 < s := by
+  have hrat : ((1414213 : ℝ) / 1000000) ^ 2 < 2 := by norm_num
+  nlinarith [s_sq, s_nonneg]
+
+lemma s_upper_tighter : s < (1414214 : ℝ) / 1000000 := by
+  have hrat : 2 < ((1414214 : ℝ) / 1000000) ^ 2 := by norm_num
+  nlinarith [s_sq, s_nonneg]
+
+lemma A5_pos : 0 < A5 := by
+  dsimp [A5]
+  nlinarith [s_pos]
+
+lemma A6_pos : 0 < A6 := by
+  dsimp [A6]
+  nlinarith [s_lower]
+
+lemma A8_pos : 0 < A8 := by
+  dsimp [A8]
+  nlinarith [d_pos]
+
+lemma p6_nonneg : 0 ≤ p6 := by
+  dsimp [p6]
+  positivity
+
+lemma p8_nonneg : 0 ≤ p8 := by
+  dsimp [p8]
+  positivity
+
+lemma p6_sq : p6 ^ 2 = 4 * A6 := by
+  dsimp [p6]
+  rw [mul_pow, Real.sq_sqrt A6_pos.le]
+  ring
+
+lemma p8_sq : p8 ^ 2 = 4 * A8 := by
+  dsimp [p8]
+  rw [mul_pow, Real.sq_sqrt A8_pos.le]
+  ring
+
+lemma p6_upper_tight : p6 < (382459 : ℝ) / 100000 := by
+  have hsq : 4 * A6 < ((382459 : ℝ) / 100000) ^ 2 := by
+    dsimp [A6]
+    nlinarith [s_upper_tighter]
+  have hq : 0 < (382459 : ℝ) / 100000 := by norm_num
+  nlinarith [p6_sq, p6_nonneg]
+
+lemma p8_lower_tight : (364071 : ℝ) / 100000 < p8 := by
+  have hsq : ((364071 : ℝ) / 100000) ^ 2 < 4 * A8 := by
+    dsimp [A8, d]
+    nlinarith [s_lower_tight]
+  have hq : 0 < (364071 : ℝ) / 100000 := by norm_num
+  nlinarith [p8_sq, p8_nonneg]
+
+lemma line_four : line 4 = 2 * p6 - p8 := by
+  dsimp [line, slope]
+  norm_num
+  ring
+
+lemma line_five : line 5 = (3 * p6 - p8) / 2 := by
+  dsimp [line, slope]
+  norm_num
+  ring
+
+lemma line4_pos : 0 < line 4 := by
+  rw [line_four]
+  nlinarith [p8_nonneg, p6_upper_tight]
+
+lemma line5_pos : 0 < line 5 := by
+  rw [line_five]
+  nlinarith [p8_nonneg, p6_upper_tight]
+
+lemma line4_upper : line 4 < (400847 : ℝ) / 100000 := by
+  rw [line_four]
+  nlinarith [p6_upper_tight, p8_lower_tight]
+
+lemma line5_upper : line 5 < (391653 : ℝ) / 100000 := by
+  rw [line_five]
+  nlinarith [p6_upper_tight, p8_lower_tight]
+
+lemma eta4_nonneg : 0 ≤ eta4 := by
+  -- The lower sign is not needed quantitatively later; this weak fact follows
+  -- from the known benchmark being above the square perimeter.
+  have hslo : (7 : ℝ) / 5 < s := s_lower
+  have hp6lo : (19 : ℝ) / 5 < p6 := by
+    have hsq : ((19 : ℝ) / 5) ^ 2 < 4 * A6 := by
+      dsimp [A6]
+      nlinarith
+    have hq : 0 < (19 : ℝ) / 5 := by norm_num
+    nlinarith [p6_sq, p6_nonneg]
+  have hp8ub : p8 < (15 : ℝ) / 4 := by
+    have hsq : 4 * A8 < ((15 : ℝ) / 4) ^ 2 := by
+      dsimp [A8, d]
+      nlinarith [s_upper]
+    have hq : 0 < (15 : ℝ) / 4 := by norm_num
+    nlinarith [p8_sq, p8_nonneg]
+  have hline : 4 ≤ line 4 := by
+    rw [line_four]
+    nlinarith
+  have hhalf : 2 ≤ line 4 / 2 := by nlinarith
+  have hsum : 0 ≤ line 4 / 2 + 2 := by nlinarith
+  have hp := mul_nonneg (sub_nonneg.mpr hhalf) hsum
+  dsimp [eta4, A4]
+  nlinarith
+
+lemma eta5_nonneg : 0 ≤ eta5 := by
+  -- A coarse proof via the corresponding isolated pentagon bound.
+  have hp5nonneg : 0 ≤ p5 := by dsimp [p5]; positivity
+  have hp5sq : p5 ^ 2 = 4 * A5 := by
+    dsimp [p5]
+    rw [mul_pow, Real.sq_sqrt A5_pos.le]
+    ring
+  have hp5upper : p5 < line 5 := by
+    have hp5lt : p5 < (3914 : ℝ) / 1000 := by
+      have hsq : 4 * A5 < ((3914 : ℝ) / 1000) ^ 2 := by
+        dsimp [A5]
+        nlinarith [s_upper_tighter]
+      have hq : 0 < (3914 : ℝ) / 1000 := by norm_num
+      nlinarith [hp5sq, hp5nonneg]
+    have hlineLower : (3914 : ℝ) / 1000 < line 5 := by
+      have hp6lo : (382458 : ℝ) / 100000 < p6 := by
+        have hsq : ((382458 : ℝ) / 100000) ^ 2 < 4 * A6 := by
+          dsimp [A6]
+          nlinarith [s_lower_tight]
+        have hq : 0 < (382458 : ℝ) / 100000 := by norm_num
+        nlinarith [p6_sq, p6_nonneg]
+      have hp8ub : p8 < (364072 : ℝ) / 100000 := by
+        have hsq : 4 * A8 < ((364072 : ℝ) / 100000) ^ 2 := by
+          dsimp [A8, d]
+          nlinarith [s_upper_tighter]
+        have hq : 0 < (364072 : ℝ) / 100000 := by norm_num
+        nlinarith [p8_sq, p8_nonneg]
+      rw [line_five]
+      nlinarith
+    linarith
+  dsimp [eta5]
+  nlinarith [hp5sq]
+
+lemma eta4_lt_seventeen_thousandths : eta4 < (17 : ℝ) / 1000 := by
+  have hhalf : line 4 / 2 < (400847 : ℝ) / 200000 := by
+    nlinarith [line4_upper]
+  have hsum : 0 < (400847 : ℝ) / 200000 + line 4 / 2 := by
+    nlinarith [line4_pos]
+  have hp := mul_pos (sub_pos.mpr hhalf) hsum
+  dsimp [eta4, A4]
+  nlinarith
+
+lemma eta5_lt_four_625 : eta5 < (4 : ℝ) / 625 := by
+  have hhalf : line 5 / 2 < (391653 : ℝ) / 200000 := by
+    nlinarith [line5_upper]
+  have hsum : 0 < (391653 : ℝ) / 200000 + line 5 / 2 := by
+    nlinarith [line5_pos]
+  have hp := mul_pos (sub_pos.mpr hhalf) hsum
+  dsimp [eta5, A5]
+  nlinarith [s_lower_tight]
+
+lemma A4_eta4_sq : A4 + eta4 = (line 4 / 2) ^ 2 := by
+  dsimp [eta4]
+  ring
+
+lemma A5_eta5_sq : A5 + eta5 = (line 5 / 2) ^ 2 := by
+  dsimp [eta5]
+  ring
+
+end
+
+end OctagonBenchmarkStandalone
