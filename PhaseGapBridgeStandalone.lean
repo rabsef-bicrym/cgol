@@ -34,7 +34,6 @@ lemma phaseWedge_eq_pair
         pairNumerator (Real.cos alpha) x y := by
   dsimp [phaseWedge, wedge, pairNumerator]
   field_simp [hsin]
-  ring
 
 lemma boundary_support_left :
     R * Real.cos (-(Real.pi / 8)) = 1 := by
