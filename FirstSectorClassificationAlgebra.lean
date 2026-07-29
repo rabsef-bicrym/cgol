@@ -101,13 +101,37 @@ def hb5 : ℝ := 256 * (4328951 - 2995225 * s) / 20420505
 lemma low_coefficients_pos :
     0 < lb0 ∧ 0 < lb1 ∧ 0 < lb2 ∧ 0 < lb3 ∧ 0 < lb4 ∧
       0 < lb5 ∧ 0 < lb6 ∧ 0 < lb7 ∧ 0 < lb8 := by
-  dsimp [lb0, lb1, lb2, lb3, lb4, lb5, lb6, lb7, lb8]
-  constructor <;> try constructor <;> nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb0]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb1]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb2]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb3]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb4]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb5]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb6]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [lb7]; nlinarith [s_upper_tighter]
+  · dsimp [lb8]; nlinarith [s_upper_tighter]
 
 lemma high_coefficients_pos :
     0 < hb0 ∧ 0 < hb1 ∧ 0 < hb2 ∧ 0 < hb3 ∧ 0 < hb4 ∧ 0 < hb5 := by
-  dsimp [hb0, hb1, hb2, hb3, hb4, hb5]
-  constructor <;> try constructor <;> nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [hb0]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [hb1]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [hb2]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [hb3]; nlinarith [s_upper_tighter]
+  constructor
+  · dsimp [hb4]; nlinarith [s_upper_tighter]
+  · dsimp [hb5]; nlinarith [s_upper_tighter]
 
 lemma low_bernstein_identity (t : ℝ) :
     lowClassPoly t =
@@ -169,8 +193,12 @@ theorem low_class_gap
   have h2 : t ^ 2 + 1 ≠ 0 := by positivity
   have hden : 0 < 471 * (t + 1) * (t ^ 2 + 1) := by positivity
   have hp := lowClassPoly_nonneg t ht0 ht1
-  rw [← sub_nonneg, sub_add_eq_sub_sub, low_class_identity t h1 h2]
-  exact div_nonneg hp hden.le
+  have hquot : 0 ≤ lowClassPoly t / (471 * (t + 1) * (t ^ 2 + 1)) :=
+    div_nonneg hp hden.le
+  have hraw : 0 ≤ firstLhs t - lowK * quintic t - q5 := by
+    rw [low_class_identity t h1 h2]
+    exact hquot
+  linarith
 
 /-- Strengthened lower certificate on the high half. -/
 theorem high_class_gap
@@ -181,11 +209,13 @@ theorem high_class_gap
   have h2 : t ^ 2 + 1 ≠ 0 := by positivity
   have hden : 0 < 189 * (t + 1) ^ 3 * (t ^ 2 + 1) := by positivity
   have hp := highClassPoly_nonneg t ht0 ht1
-  rw [← sub_nonneg]
-  have hid := high_class_identity t h1 h2
-  rw [← hid]
-  ring_nf
-  exact div_nonneg hp hden.le
+  have hquot :
+      0 ≤ highClassPoly t / (189 * (t + 1) ^ 3 * (t ^ 2 + 1)) :=
+    div_nonneg hp hden.le
+  have hraw : 0 ≤ firstLhs t - c + highK * cubic (u t) - q5 := by
+    rw [high_class_identity t h1 h2]
+    exact hquot
+  linarith
 
 end
 
