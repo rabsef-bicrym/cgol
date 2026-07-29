@@ -17,6 +17,7 @@ roots = [
   "ArctanPolynomialBounds",
   "FirstSectorAlgebra",
   "FirstSectorScalar",
+  "FirstSectorMonotonicityStandalone",
   "FirstSectorDefectStandalone",
   "SecondSectorDefectStandalone",
   "ThirdSectorDefectStandalone",
