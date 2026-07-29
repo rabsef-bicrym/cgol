@@ -1,14 +1,14 @@
-name: Public octagon finite-fan bridge CI
+name: Public octagon dangerous-fan classification CI
 
 on:
   push:
-    branches: [octagon-fan-ci-2026-07-28]
+    branches: [octagon-classification-ci-2026-07-29]
   pull_request:
     branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: public-octagon-fan-${{ github.event.pull_request.number || github.ref }}
+  group: public-octagon-classification-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
@@ -40,11 +40,11 @@ jobs:
           set -euo pipefail
           if [ ! -d .lake/packages/mathlib ]; then lake update; fi
           if [ ! -d .lake/packages/mathlib/.lake/build/lib/lean/Mathlib ]; then lake exe cache get; fi
-      - name: Kernel-check finite-fan bridge
+      - name: Kernel-check classification certificates
         shell: bash
         run: |
           set -o pipefail
-          lake build OctagonCI --wfail 2>&1 | tee fan-bridge-lean.log
+          lake build OctagonCI --wfail 2>&1 | tee classification-lean.log
       - name: Reject proof holes
         shell: bash
         run: |
@@ -55,11 +55,12 @@ jobs:
             SmallGapBernsteinStandalone.lean SmallGapReserveStandalone.lean \
             AllSectorDefectStandalone.lean PhaseSectorAlgebraStandalone.lean \
             OctagonSupportNormalizationStandalone.lean PhaseGapBridgeStandalone.lean \
-            ReducedFanBridgeStandalone.lean
+            ReducedFanBridgeStandalone.lean OctagonBenchmarkStandalone.lean \
+            FirstSectorClassificationAlgebra.lean
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v6
         with:
-          name: octagon-fan-bridge-lean-logs
-          path: fan-bridge-lean.log
+          name: octagon-classification-lean-logs
+          path: classification-lean.log
           if-no-files-found: ignore
