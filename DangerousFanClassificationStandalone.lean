@@ -157,8 +157,8 @@ lemma high_branch_tan_upper
   have hmul : ((1 : ℝ) / 20) * (1 + t) < 1 - t := by
     change (1 - t) / (1 + t) > (1 : ℝ) / 20 at hu
     exact (lt_div_iff₀ hden).1 hu
-  dsimp [t]
-  nlinarith
+  have htfinal : t ≤ (19 : ℝ) / 21 := by nlinarith
+  simpa [t] using htfinal
 
 /-- The first large sector has defect at least `4/625` between `58°` and
 `87°`. -/
