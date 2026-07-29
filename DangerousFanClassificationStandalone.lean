@@ -2,6 +2,9 @@ import FirstSectorClassificationAlgebra
 import ReducedFanBridgeStandalone
 import Mathlib.Analysis.Real.Pi.Bounds
 
+set_option linter.unusedSimpArgs false
+set_option linter.unusedVariables false
+
 /-!
 # Rigorous angular classification of potentially negative cells
 
@@ -51,23 +54,32 @@ theorem second_sector_defect_ge
       phaseDefect (Real.pi / 2 + beta) beta := by
   have hcos := SecondSectorDefectStandalone.cos_beta_pos beta hb0 hbq
   have hsin0 := SecondSectorDefectStandalone.sin_beta_nonneg beta hb0 hbq
-  have ht0 : 0 ≤ Real.sin beta / Real.cos beta :=
-    div_nonneg hsin0 hcos.le
-  have hsquare := SecondSectorDefectStandalone.support_sq_ge_one beta hb0 hbq
-  have hmul := mul_le_mul_of_nonneg_right hsquare ht0
+  let T : ℝ := Real.sin beta / Real.cos beta
+  let K : ℝ := Real.cos beta + d * Real.sin beta
+  have hT0 : 0 ≤ T := by
+    dsimp [T]
+    exact div_nonneg hsin0 hcos.le
+  have hKsq : 1 ≤ K ^ 2 := by
+    dsimp [K]
+    exact SecondSectorDefectStandalone.support_sq_ge_one beta hb0 hbq
+  have hKT : T ≤ K ^ 2 * T := by
+    simpa using mul_le_mul_of_nonneg_right hKsq hT0
+  have hterm : T ≤ (1 + K ^ 2) * T / 2 := by
+    nlinarith
   have hformula :=
     SecondSectorDefectStandalone.sectorMinimum_second_formula beta hcos.ne'
   have hminimum :
-      1 + s * (Real.sin beta / Real.cos beta) ≤
-        sectorMinimum (Real.pi / 2 + beta) beta := by
+      1 + s * T ≤ sectorMinimum (Real.pi / 2 + beta) beta := by
     rw [hformula]
-    dsimp [d]
+    change 1 + s * T ≤ 1 + d * T + (1 + K ^ 2) * T / 2
+    have hds : d + 1 = s := by simp [d]
     nlinarith
   have htan := SecondSectorDefectStandalone.beta_le_tan_beta beta hb0 hbq
-  have hsBeta : ((7 : ℝ) / 5) * beta ≤ s * beta := by
-    exact mul_le_mul_of_nonneg_right s_lower.le hb0
-  have hsTan : s * beta ≤ s * (Real.sin beta / Real.cos beta) :=
-    mul_le_mul_of_nonneg_left htan s_nonneg
+  have hsBeta : ((7 : ℝ) / 5) * beta ≤ s * beta :=
+    mul_le_mul_of_nonneg_right s_lower.le hb0
+  have hsTan : s * beta ≤ s * T := by
+    dsimp [T]
+    exact mul_le_mul_of_nonneg_left htan s_nonneg
   have hcoeff := phaseSlope_div_pi_le_four_fifths
   have hphase :
       phaseSlope * (beta / Real.pi) ≤ ((4 : ℝ) / 5) * beta := by
@@ -143,7 +155,7 @@ lemma high_branch_tan_upper
     nlinarith
   have hden : 0 < 1 + t := by linarith
   have hmul : ((1 : ℝ) / 20) * (1 + t) < 1 - t := by
-    dsimp [u] at hu
+    change (1 - t) / (1 + t) > (1 : ℝ) / 20 at hu
     exact (lt_div_iff₀ hden).1 hu
   dsimp [t]
   nlinarith
@@ -234,25 +246,29 @@ theorem defect_ge_q4_of_ninety_two_le
     have hnum : (17 : ℝ) / 1000 ≤ ((3 : ℝ) / 5) * beta := by
       have hpi := Real.pi_gt_three
       nlinarith
-    have hres : residual alpha = beta := by
-      simp [residual, show ¬ alpha ≤ Real.pi / 4 by linarith,
+    have hres : AllSectorDefectStandalone.residual alpha = beta := by
+      simp [AllSectorDefectStandalone.residual,
+        show ¬ alpha ≤ Real.pi / 4 by linarith,
         show ¬ alpha ≤ Real.pi / 2 by linarith, hthird, beta]
+    have hpaid := le_trans hnum hdef
     dsimp [actualDefect]
     rw [hres]
-    exact le_trans hnum hdef
+    simpa [beta] using hpaid
   · let beta : ℝ := alpha - 3 * Real.pi / 4
     have hb0 : 0 ≤ beta := by dsimp [beta]; linarith
     have hbq : beta < Real.pi / 4 := by dsimp [beta]; linarith
     have hdef := third_sector_defect_ge_cap beta hb0 hbq
     have hqcap : (17 : ℝ) / 1000 ≤ cap := by
       nlinarith [SmallGapReserveStandalone.cap_lower]
-    have hres : residual alpha = beta := by
-      simp [residual, show ¬ alpha ≤ Real.pi / 4 by linarith,
+    have hres : AllSectorDefectStandalone.residual alpha = beta := by
+      simp [AllSectorDefectStandalone.residual,
+        show ¬ alpha ≤ Real.pi / 4 by linarith,
         show ¬ alpha ≤ Real.pi / 2 by linarith,
         show ¬ alpha ≤ 3 * Real.pi / 4 by exact hthird, beta]
+    have hpaid := le_trans hqcap hdef
     dsimp [actualDefect]
     rw [hres]
-    exact le_trans hqcap hdef
+    simpa [beta] using hpaid
 
 /-- A phase defect below `4/625` lies in one of the two pentagonal windows. -/
 theorem defect_lt_q5_classification
@@ -260,10 +276,8 @@ theorem defect_lt_q5_classification
     (hdef : actualDefect alpha < q5) :
     (43 * Real.pi / 180 < alpha ∧ alpha < 58 * Real.pi / 180) ∨
       (87 * Real.pi / 180 < alpha ∧ alpha < 91 * Real.pi / 180) := by
-  have hqpos : 0 < q5 := by norm_num [q5]
   by_cases h43 : alpha ≤ 43 * Real.pi / 180
-  · have hquarter : alpha ≤ Real.pi / 4 := by nlinarith [Real.pi_pos]
-    have hreq := all_sector_reserve alpha ha0.le haπ
+  · have hreq := all_sector_reserve alpha ha0.le haπ
     have hratio : alpha / Real.pi ≤ (43 : ℝ) / 180 := by
       apply (div_le_iff₀ Real.pi_pos).2
       nlinarith
@@ -272,34 +286,37 @@ theorem defect_lt_q5_classification
     have hreserve : q5 ≤ requiredReserve alpha := by
       have hmul := mul_le_mul_of_nonneg_left hfactor
         (by norm_num [smallGapReserve] : 0 ≤ smallGapReserve)
-      dsimp [requiredReserve, q5]
+      dsimp [requiredReserve]
       have hnonneg : 0 ≤ 1 - 4 * (alpha / Real.pi) := by nlinarith
       rw [max_eq_left hnonneg]
-      norm_num [smallGapReserve] at hmul ⊢
+      dsimp [smallGapReserve, q5] at hmul ⊢
       nlinarith
-    exact False.elim (by linarith [hreq, hreserve])
+    have hpaid := le_trans hreserve hreq
+    exact (not_lt_of_ge hpaid hdef).elim
   · have h43' : 43 * Real.pi / 180 < alpha := lt_of_not_ge h43
     by_cases h58 : alpha < 58 * Real.pi / 180
     · exact Or.inl ⟨h43', h58⟩
     · have h58' : 58 * Real.pi / 180 ≤ alpha := le_of_not_gt h58
-      by_cases h87 : alpha < 87 * Real.pi / 180
+      by_cases h87 : alpha ≤ 87 * Real.pi / 180
       · let beta : ℝ := alpha - Real.pi / 4
         have hbl : 13 * Real.pi / 180 ≤ beta := by dsimp [beta]; nlinarith
         have hbu : beta ≤ 42 * Real.pi / 180 := by dsimp [beta]; nlinarith
         have hq := first_sector_defect_ge_q5 beta hbl hbu
-        have hres : residual alpha = beta := by
+        have hres : AllSectorDefectStandalone.residual alpha = beta := by
           have hqtr : Real.pi / 4 < alpha := by nlinarith [Real.pi_pos]
           have hhalf : alpha ≤ Real.pi / 2 := by nlinarith [h87, Real.pi_pos]
-          simp [residual, show ¬ alpha ≤ Real.pi / 4 by linarith,
-            hhalf, beta]
-        dsimp [actualDefect] at hdef
-        rw [hres] at hdef
-        have halpha : Real.pi / 4 + beta = alpha := by dsimp [beta]; ring
-        rw [← halpha] at hdef
-        exact False.elim (by linarith)
-      · have h87' : 87 * Real.pi / 180 ≤ alpha := le_of_not_gt h87
+          simp [AllSectorDefectStandalone.residual,
+            show ¬ alpha ≤ Real.pi / 4 by linarith, hhalf, beta]
+        have hq' : q5 ≤ phaseDefect alpha beta := by
+          simpa [beta] using hq
+        have hactual : actualDefect alpha = phaseDefect alpha beta := by
+          dsimp [actualDefect]
+          rw [hres]
+        rw [hactual] at hdef
+        exact (not_lt_of_ge hq' hdef).elim
+      · have h87' : 87 * Real.pi / 180 < alpha := lt_of_not_ge h87
         by_cases h91 : alpha < 91 * Real.pi / 180
-        · exact Or.inr ⟨lt_of_le_of_lt h87' h91, h91⟩
+        · exact Or.inr ⟨h87', h91⟩
         · have h91' : 91 * Real.pi / 180 ≤ alpha := le_of_not_gt h91
           by_cases hthird : alpha ≤ 3 * Real.pi / 4
           · let beta : ℝ := alpha - Real.pi / 2
@@ -309,29 +326,41 @@ theorem defect_lt_q5_classification
             have hq := second_sector_defect_ge beta hb0 hbq
             have hnum : q5 ≤ ((3 : ℝ) / 5) * beta := by
               have hpi := Real.pi_gt_three
-              norm_num [q5]
+              dsimp [q5]
               nlinarith
-            have hres : residual alpha = beta := by
-              simp [residual, show ¬ alpha ≤ Real.pi / 4 by nlinarith [Real.pi_pos],
+            have hres : AllSectorDefectStandalone.residual alpha = beta := by
+              simp [AllSectorDefectStandalone.residual,
+                show ¬ alpha ≤ Real.pi / 4 by nlinarith [Real.pi_pos],
                 show ¬ alpha ≤ Real.pi / 2 by nlinarith [Real.pi_pos],
                 hthird, beta]
-            dsimp [actualDefect] at hdef
-            rw [hres] at hdef
-            exact False.elim (by linarith)
+            have hpaid := le_trans hnum hq
+            have hpaid' : q5 ≤ phaseDefect alpha beta := by
+              simpa [beta] using hpaid
+            have hactual : actualDefect alpha = phaseDefect alpha beta := by
+              dsimp [actualDefect]
+              rw [hres]
+            rw [hactual] at hdef
+            exact (not_lt_of_ge hpaid' hdef).elim
           · let beta : ℝ := alpha - 3 * Real.pi / 4
             have hb0 : 0 ≤ beta := by dsimp [beta]; linarith
             have hbq : beta < Real.pi / 4 := by dsimp [beta]; linarith
             have hq := third_sector_defect_ge_cap beta hb0 hbq
             have hqcap : q5 ≤ cap := by
-              norm_num [q5]
+              dsimp [q5]
               nlinarith [SmallGapReserveStandalone.cap_lower]
-            have hres : residual alpha = beta := by
-              simp [residual, show ¬ alpha ≤ Real.pi / 4 by nlinarith [Real.pi_pos],
+            have hres : AllSectorDefectStandalone.residual alpha = beta := by
+              simp [AllSectorDefectStandalone.residual,
+                show ¬ alpha ≤ Real.pi / 4 by nlinarith [Real.pi_pos],
                 show ¬ alpha ≤ Real.pi / 2 by nlinarith [Real.pi_pos],
                 show ¬ alpha ≤ 3 * Real.pi / 4 by exact hthird, beta]
-            dsimp [actualDefect] at hdef
-            rw [hres] at hdef
-            exact False.elim (by linarith)
+            have hpaid := le_trans hqcap hq
+            have hpaid' : q5 ≤ phaseDefect alpha beta := by
+              simpa [beta] using hpaid
+            have hactual : actualDefect alpha = phaseDefect alpha beta := by
+              dsimp [actualDefect]
+              rw [hres]
+            rw [hactual] at hdef
+            exact (not_lt_of_ge hpaid' hdef).elim
 
 end
 
