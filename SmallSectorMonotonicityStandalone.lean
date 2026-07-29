@@ -52,8 +52,7 @@ lemma rawDeriv_eq_compact (u : ℝ) : rawDeriv u = compactDeriv u := by
   have htrig := Real.sin_sq_add_cos_sq (Real.pi * u)
   dsimp [rawDeriv, compactDeriv]
   rw [htwo, Real.cos_two_mul, Real.sin_two_mul]
-  ring_nf at htrig ⊢
-  nlinarith
+  linear_combination -(Real.pi * d) * htrig
 
 lemma sin_add_cos_le_s (y : ℝ) :
     Real.sin y + Real.cos y ≤ s := by
