@@ -28,5 +28,6 @@ roots = [
   "PhaseGapBridgeStandalone",
   "ReducedFanBridgeStandalone",
   "OctagonBenchmarkStandalone",
-  "FirstSectorClassificationAlgebra"
+  "FirstSectorClassificationAlgebra",
+  "DangerousFanClassificationStandalone"
 ]
