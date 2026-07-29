@@ -40,11 +40,17 @@ lemma hasDerivAt_smallPhaseDefect (u : ℝ) :
     ((hasDerivAt_id u).const_mul phaseSlope)
   have hprod := hs.mul (hc.add hs)
   have hraw := hlinear.add (hprod.const_mul d)
-  convert hraw using 1 <;> dsimp [smallPhaseDefect, rawDeriv] <;> ring
+  convert hraw using 1
+  · funext y
+    dsimp [smallPhaseDefect]
+    ring
+  · dsimp [rawDeriv]
+    ring
 
 lemma rawDeriv_eq_compact (u : ℝ) : rawDeriv u = compactDeriv u := by
+  have htwo : 2 * Real.pi * u = 2 * (Real.pi * u) := by ring
   dsimp [rawDeriv, compactDeriv]
-  rw [Real.cos_two_mul, Real.sin_two_mul]
+  rw [htwo, Real.cos_two_mul, Real.sin_two_mul]
   ring
 
 lemma sin_add_cos_le_s (y : ℝ) :
@@ -69,7 +75,9 @@ lemma compactDeriv_nonpos (u : ℝ) : compactDeriv u ≤ 0 := by
   have hcpi := mul_le_mul_of_nonneg_left hpi c_nonneg
   have hslope : phaseSlope = 4 * c := rfl
   have hrewrite : d * Real.pi * s = c * Real.pi := by
-    rw [mul_assoc, d_mul_s]
+    calc
+      d * Real.pi * s = (d * s) * Real.pi := by ring
+      _ = c * Real.pi := by rw [d_mul_s]
   rw [hrewrite] at hmul
   dsimp [compactDeriv]
   rw [hslope]
@@ -84,7 +92,14 @@ lemma deriv_smallPhaseDefect_nonpos (u : ℝ) :
 theorem smallPhaseDefect_antitone :
     AntitoneOn smallPhaseDefect (Set.Icc 0 ((1 : ℝ) / 4)) := by
   apply antitoneOn_of_deriv_nonpos (convex_Icc 0 ((1 : ℝ) / 4))
-  · fun_prop
+  · change ContinuousOn
+      (fun u : ℝ => cap - phaseSlope * u +
+        d * Real.sin (Real.pi * u) *
+          (Real.cos (Real.pi * u) + Real.sin (Real.pi * u)))
+      (Set.Icc 0 ((1 : ℝ) / 4))
+    fun_prop
+  · intro x hx
+    exact (hasDerivAt_smallPhaseDefect x).differentiableAt.differentiableWithinAt
   · intro x hx
     exact deriv_smallPhaseDefect_nonpos x
 
@@ -93,7 +108,10 @@ theorem right_endpoint_lower
     (a b u : ℝ)
     (ha : 0 ≤ a) (hab : a ≤ u) (hub : u ≤ b) (hb : b ≤ (1 : ℝ) / 4) :
     smallPhaseDefect b ≤ smallPhaseDefect u := by
-  exact smallPhaseDefect_antitone ⟨hab, hub⟩ ⟨ha, hb⟩ hub
+  have hu0 : 0 ≤ u := le_trans ha hab
+  have huq : u ≤ (1 : ℝ) / 4 := le_trans hub hb
+  have hb0 : 0 ≤ b := le_trans hu0 hub
+  exact smallPhaseDefect_antitone ⟨hu0, huq⟩ ⟨hb0, hb⟩ hub
 
 end
 
