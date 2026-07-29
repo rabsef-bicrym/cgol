@@ -39,12 +39,12 @@ def eta4 : ℝ := (line 4 / 2) ^ 2 - A4
 
 def eta5 : ℝ := (line 5 / 2) ^ 2 - A5
 
-lemma s_lower_tight : (1414213 : ℝ) / 1000000 < s := by
-  have hrat : ((1414213 : ℝ) / 1000000) ^ 2 < 2 := by norm_num
+lemma s_lower_tight : (14142135 : ℝ) / 10000000 < s := by
+  have hrat : ((14142135 : ℝ) / 10000000) ^ 2 < 2 := by norm_num
   nlinarith [s_sq, s_nonneg]
 
-lemma s_upper_tighter : s < (1414214 : ℝ) / 1000000 := by
-  have hrat : 2 < ((1414214 : ℝ) / 1000000) ^ 2 := by norm_num
+lemma s_upper_tighter : s < (14142136 : ℝ) / 10000000 := by
+  have hrat : 2 < ((14142136 : ℝ) / 10000000) ^ 2 := by norm_num
   nlinarith [s_sq, s_nonneg]
 
 lemma A5_pos : 0 < A5 := by
