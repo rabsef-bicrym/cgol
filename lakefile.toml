@@ -26,5 +26,7 @@ roots = [
   "PhaseSectorAlgebraStandalone",
   "OctagonSupportNormalizationStandalone",
   "PhaseGapBridgeStandalone",
-  "ReducedFanBridgeStandalone"
+  "ReducedFanBridgeStandalone",
+  "OctagonBenchmarkStandalone",
+  "FirstSectorClassificationAlgebra"
 ]
