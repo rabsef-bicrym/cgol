@@ -82,7 +82,6 @@ theorem tangent_area_lower {n : ℕ} (F : FanData n) :
     simp only [Finset.sum_add_distrib, Finset.sum_sub_distrib]
     rw [← Finset.mul_sum]
     simp [phaseBase, hnorm]
-    ring
   rw [hid] at hsum
   rw [F.areaEq]
   exact hsum
