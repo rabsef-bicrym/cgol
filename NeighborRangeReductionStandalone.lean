@@ -48,40 +48,46 @@ lemma p7_sq : p7 ^ 2 = 4 * A7 := by
 lemma p7_lower : (37337 : ℝ) / 10000 < p7 := by
   have hsq : ((37337 : ℝ) / 10000) ^ 2 < 4 * A7 := by
     dsimp [A7]
-    nlinarith [s_lower_tight]
+    nlinarith [OctagonBenchmarkStandalone.s_lower_tight]
   have hq : 0 < (37337 : ℝ) / 10000 := by norm_num
   nlinarith [p7_sq, p7_nonneg]
 
-lemma slope_lower : (9 : ℝ) / 100 < slope := by
-  dsimp [slope]
+lemma slope_lower : (9 : ℝ) / 100 < OctagonBenchmarkStandalone.slope := by
+  unfold OctagonBenchmarkStandalone.slope
   nlinarith [p6_lower_tight, p8_upper_tight]
 
-lemma slope_upper : slope < (1 : ℝ) / 10 := by
-  dsimp [slope]
+lemma slope_upper_tight : OctagonBenchmarkStandalone.slope < (23 : ℝ) / 250 := by
+  unfold OctagonBenchmarkStandalone.slope
   nlinarith [p6_upper_tight, p8_lower_tight]
 
-lemma slope_pos : 0 < slope := lt_trans (by norm_num) slope_lower
+lemma slope_pos : 0 < OctagonBenchmarkStandalone.slope :=
+  lt_trans (by norm_num) slope_lower
 
-lemma p8_sub_line (n : ℕ) : p8 - line n = slope * ((n : ℝ) - 8) := by
-  dsimp [line, slope]
+lemma p8_sub_line (n : ℕ) :
+    p8 - line n = OctagonBenchmarkStandalone.slope * ((n : ℝ) - 8) := by
+  unfold OctagonBenchmarkStandalone.line OctagonBenchmarkStandalone.slope
   ring
 
-lemma line_three : line 3 = p6 + 3 * slope := by
-  dsimp [line]
+lemma line_three : line 3 = p6 + 3 * OctagonBenchmarkStandalone.slope := by
+  unfold OctagonBenchmarkStandalone.line
   norm_num
   ring
 
-lemma line_six : line 6 = p6 := by simp [line]
+lemma line_six : line 6 = p6 := by
+  unfold OctagonBenchmarkStandalone.line
+  norm_num
+  ring
 
 lemma line_seven : line 7 = (p6 + p8) / 2 := by
-  dsimp [line, slope]
+  unfold OctagonBenchmarkStandalone.line OctagonBenchmarkStandalone.slope
   norm_num
   ring
 
 lemma p3_gt_line_three : line 3 < p3 := by
   rw [line_three]
   dsimp [p3]
-  nlinarith [s_lower, p6_upper_tight, slope_upper]
+  nlinarith [OctagonBenchmarkStandalone.s_lower_tight,
+    p6_upper_tight, slope_upper_tight]
 
 lemma p7_gt_line_seven : line 7 < p7 := by
   rw [line_seven]
@@ -128,7 +134,8 @@ theorem triangular_neighbor_reserve_pays
   have hsurplus : (3519 : ℝ) / 5000 < p3 - line 3 := by
     rw [line_three]
     dsimp [p3]
-    nlinarith [s_lower, p6_upper_tight, slope_upper]
+    nlinarith [OctagonBenchmarkStandalone.s_lower_tight,
+      p6_upper_tight, slope_upper_tight]
   have hr' : (3519 : ℝ) / 5000 < r := lt_of_lt_of_le hsurplus hr
   nlinarith [debt4_lt_nine_thousandths]
 
@@ -146,17 +153,17 @@ theorem large_neighbor_reserve_pays
   have hratioPos : 0 < ((n : ℝ) - 8) / (n : ℝ) := by nlinarith
   have hprod :
       ((1 : ℝ) / 5) * ((9 : ℝ) / 100) <
-        (((n : ℝ) - 8) / (n : ℝ)) * slope := by
+        (((n : ℝ) - 8) / (n : ℝ)) * OctagonBenchmarkStandalone.slope := by
     calc
       ((1 : ℝ) / 5) * ((9 : ℝ) / 100) ≤
           (((n : ℝ) - 8) / (n : ℝ)) * ((9 : ℝ) / 100) :=
         mul_le_mul_of_nonneg_right hratio (by norm_num)
-      _ < (((n : ℝ) - 8) / (n : ℝ)) * slope :=
+      _ < (((n : ℝ) - 8) / (n : ℝ)) * OctagonBenchmarkStandalone.slope :=
         mul_lt_mul_of_pos_left slope_lower hratioPos
   have hidentity :
       ((63 : ℝ) / (80 * (n : ℝ))) * (p8 - line n) =
         ((63 : ℝ) / 80) *
-          ((((n : ℝ) - 8) / (n : ℝ)) * slope) := by
+          ((((n : ℝ) - 8) / (n : ℝ)) * OctagonBenchmarkStandalone.slope) := by
     rw [p8_sub_line]
     field_simp [ne_of_gt hnpos]
   have hsurplus :
