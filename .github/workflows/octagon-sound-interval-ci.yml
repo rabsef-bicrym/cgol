@@ -104,7 +104,7 @@ jobs:
             lake exe cache get
           fi
 
-      - name: Kernel-check analytic and interval-domain reductions
+      - name: Kernel-check analytic, domain, and selected-edge reductions
         shell: bash
         run: |
           set -o pipefail
@@ -115,7 +115,8 @@ jobs:
             FirstSectorClassificationAlgebra.lean \
             DangerousFanClassificationStandalone.lean \
             DangerousOwnerRootStandalone.lean \
-            NeighborRangeReductionStandalone.lean
+            NeighborRangeReductionStandalone.lean \
+            SelectedEdgePartitionStandalone.lean
 
       - name: Kernel-check imported finite certificate
         shell: bash
