@@ -33,5 +33,6 @@ roots = [
   "FirstSectorClassificationAlgebra",
   "DangerousFanClassificationStandalone",
   "DangerousOwnerRootStandalone",
-  "NeighborRangeReductionStandalone"
+  "NeighborRangeReductionStandalone",
+  "SelectedEdgePartitionStandalone"
 ]
