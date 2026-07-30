@@ -31,5 +31,6 @@ roots = [
   "ReducedFanBridgeStandalone",
   "OctagonBenchmarkStandalone",
   "FirstSectorClassificationAlgebra",
-  "DangerousFanClassificationStandalone"
+  "DangerousFanClassificationStandalone",
+  "DangerousOwnerRootStandalone"
 ]
