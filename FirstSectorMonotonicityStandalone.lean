@@ -60,6 +60,7 @@ lemma hasDerivAt_firstLhs
   convert h using 1
   · funext x
     dsimp [firstLhs]
+    ring
   · dsimp [firstDeriv]
     field_simp [h1, h2]
     ring
@@ -69,14 +70,7 @@ lemma hasDerivAt_scalarDefect
     HasDerivAt scalarDefect (scalarDeriv t) t := by
   have hf := hasDerivAt_firstLhs t h1 h2
   have ha := (Real.hasDerivAt_arctan t).const_mul exactK
-  have h := hf.sub ha
-  convert h using 1
-  · funext x
-    rfl
-  · dsimp [scalarDeriv]
-    have hden : 1 + t ^ 2 ≠ 0 := h2
-    field_simp [hden]
-    ring
+  simpa [scalarDefect, scalarDeriv, div_eq_mul_inv] using hf.sub ha
 
 lemma low_deriv_identity
     (t : ℝ) (h1 : 1 + t ≠ 0) (h2 : 1 + t ^ 2 ≠ 0) :
@@ -230,14 +224,13 @@ lemma deriv_scalarDefect_nonpos_high
 theorem scalarDefect_monotone_low :
     MonotoneOn scalarDefect (Set.Icc 0 ((1 : ℝ) / 4)) := by
   apply monotoneOn_of_deriv_nonneg (convex_Icc 0 ((1 : ℝ) / 4))
-  · change ContinuousOn
-      (fun t : ℝ => firstLhs t - exactK * Real.arctan t)
-      (Set.Icc 0 ((1 : ℝ) / 4))
-    fun_prop
   · intro t ht
-    have h1 : 1 + t ≠ 0 := by
-      have : 0 ≤ t := le_trans ht.1 interior_subset.1
-      positivity
+    have h1 : 1 + t ≠ 0 := by nlinarith [ht.1]
+    have h2 : 1 + t ^ 2 ≠ 0 := by positivity
+    exact (hasDerivAt_scalarDefect t h1 h2).continuousAt.continuousWithinAt
+  · intro t ht
+    rw [interior_Icc] at ht
+    have h1 : 1 + t ≠ 0 := by nlinarith [ht.1]
     have h2 : 1 + t ^ 2 ≠ 0 := by positivity
     exact (hasDerivAt_scalarDefect t h1 h2).differentiableAt.differentiableWithinAt
   · intro t ht
@@ -248,14 +241,13 @@ theorem scalarDefect_monotone_low :
 theorem scalarDefect_antitone_high :
     AntitoneOn scalarDefect (Set.Icc ((4 : ℝ) / 5) 1) := by
   apply antitoneOn_of_deriv_nonpos (convex_Icc ((4 : ℝ) / 5) 1)
-  · change ContinuousOn
-      (fun t : ℝ => firstLhs t - exactK * Real.arctan t)
-      (Set.Icc ((4 : ℝ) / 5) 1)
-    fun_prop
   · intro t ht
-    have h1 : 1 + t ≠ 0 := by
-      have : 0 ≤ t := le_trans (by norm_num : (0 : ℝ) ≤ 4 / 5) ht.1
-      positivity
+    have h1 : 1 + t ≠ 0 := by nlinarith [ht.1]
+    have h2 : 1 + t ^ 2 ≠ 0 := by positivity
+    exact (hasDerivAt_scalarDefect t h1 h2).continuousAt.continuousWithinAt
+  · intro t ht
+    rw [interior_Icc] at ht
+    have h1 : 1 + t ≠ 0 := by nlinarith [ht.1]
     have h2 : 1 + t ^ 2 ≠ 0 := by positivity
     exact (hasDerivAt_scalarDefect t h1 h2).differentiableAt.differentiableWithinAt
   · intro t ht
