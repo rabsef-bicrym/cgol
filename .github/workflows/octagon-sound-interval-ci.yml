@@ -3,10 +3,12 @@ name: Public octagon sound interval verification
 on:
   push:
     branches: [octagon-sound-interval-ci-2026-07-30]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
-  group: public-octagon-sound-interval-${{ github.ref }}
+  group: public-octagon-sound-interval-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 permissions:
