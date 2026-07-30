@@ -81,7 +81,7 @@ jobs:
             lake exe cache get
           fi
 
-      - name: Kernel-check analytic interval justifications
+      - name: Kernel-check analytic and whole-fan root-box bridge
         shell: bash
         run: |
           set -o pipefail
@@ -90,7 +90,8 @@ jobs:
             SmallSectorMonotonicityStandalone.lean \
             FirstSectorMonotonicityStandalone.lean \
             FirstSectorClassificationAlgebra.lean \
-            DangerousFanClassificationStandalone.lean
+            DangerousFanClassificationStandalone.lean \
+            DangerousOwnerRootStandalone.lean
 
       - name: Upload reproducible evidence
         if: always()
