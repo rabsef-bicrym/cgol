@@ -20,6 +20,7 @@ open Real
 open scoped BigOperators
 open OctagonBase
 open OctagonBenchmarkStandalone
+open FirstSectorClassificationAlgebra
 open AllSectorDefectStandalone
 open PhaseGapBridgeStandalone
 open ReducedFanBridgeStandalone
@@ -27,12 +28,10 @@ open DangerousFanClassificationStandalone
 
 lemma phaseBase_four : phaseBase 4 = 4 := by
   dsimp [phaseBase, phaseSlope, cap, d]
-  norm_num
   nlinarith [s_sq]
 
 lemma phaseBase_five : phaseBase 5 = A5 := by
   dsimp [phaseBase, phaseSlope, cap, d, A5]
-  norm_num
   nlinarith [s_sq]
 
 lemma square_strict_of_nonneg_lt
@@ -53,14 +52,12 @@ theorem quadrilateral_defect_budget
     (hchakerian : 2 * Real.sqrt F.tangentArea ≤ perimeter)
     (hnegative : perimeter < line 4) :
     (∑ i, actualDefect (F.gap i)) < eta4 := by
-  let D : ℝ := ∑ i, actualDefect (F.gap i)
-  have hD0 : 0 ≤ D := by
-    dsimp [D]
-    exact Finset.sum_nonneg fun i _ => defect_nonneg F i
+  have hD0 : 0 ≤ ∑ i, actualDefect (F.gap i) :=
+    Finset.sum_nonneg fun i _ => defect_nonneg F i
   have hphase := tangent_area_lower F
   rw [phaseBase_four] at hphase
-  have hbase : 0 ≤ 4 + D := by linarith
-  have harea0 : 0 ≤ F.tangentArea := le_trans hbase (by simpa [D] using hphase)
+  have hbase : 0 ≤ 4 + ∑ i, actualDefect (F.gap i) := by linarith
+  have harea0 : 0 ≤ F.tangentArea := le_trans hbase hphase
   have hsqrt0 : 0 ≤ 2 * Real.sqrt F.tangentArea := by positivity
   have hsqrtLine : 2 * Real.sqrt F.tangentArea < line 4 :=
     lt_of_le_of_lt hchakerian hnegative
@@ -70,8 +67,7 @@ theorem quadrilateral_defect_budget
     rw [mul_pow, Real.sq_sqrt harea0]
     ring
   rw [hsqrtSq] at hsq
-  dsimp [eta4]
-  dsimp [D]
+  dsimp [eta4, A4]
   nlinarith
 
 /-- Negative pentagonal fans have total phase defect below `eta5`. -/
@@ -80,15 +76,13 @@ theorem pentagon_defect_budget
     (hchakerian : 2 * Real.sqrt F.tangentArea ≤ perimeter)
     (hnegative : perimeter < line 5) :
     (∑ i, actualDefect (F.gap i)) < eta5 := by
-  let D : ℝ := ∑ i, actualDefect (F.gap i)
-  have hD0 : 0 ≤ D := by
-    dsimp [D]
-    exact Finset.sum_nonneg fun i _ => defect_nonneg F i
+  have hD0 : 0 ≤ ∑ i, actualDefect (F.gap i) :=
+    Finset.sum_nonneg fun i _ => defect_nonneg F i
   have hphase := tangent_area_lower F
   rw [phaseBase_five] at hphase
   have hA5 : 0 < A5 := A5_pos
-  have hbase : 0 ≤ A5 + D := by linarith
-  have harea0 : 0 ≤ F.tangentArea := le_trans hbase (by simpa [D] using hphase)
+  have hbase : 0 ≤ A5 + ∑ i, actualDefect (F.gap i) := by linarith
+  have harea0 : 0 ≤ F.tangentArea := le_trans hbase hphase
   have hsqrt0 : 0 ≤ 2 * Real.sqrt F.tangentArea := by positivity
   have hsqrtLine : 2 * Real.sqrt F.tangentArea < line 5 :=
     lt_of_le_of_lt hchakerian hnegative
@@ -99,7 +93,6 @@ theorem pentagon_defect_budget
     ring
   rw [hsqrtSq] at hsq
   dsimp [eta5]
-  dsimp [D]
   nlinarith
 
 def next4 (i : Fin 4) : Fin 4 := i + 1
@@ -116,7 +109,7 @@ theorem quadrilateral_angles_have_root_edge
       (46 * Real.pi / 100 ≤ turn i ∧ turn i ≤ 53 * Real.pi / 100) ∧
       (46 * Real.pi / 100 ≤ turn (next4 i) ∧
         turn (next4 i) ≤ 53 * Real.pi / 100) := by
-  have hsum' : turn 0 + turn 1 + turn 2 + turn 3 = 2 * Real.pi := by
+  have hsum' : turn 0 + (turn 1 + (turn 2 + turn 3)) = 2 * Real.pi := by
     simpa [Fin.sum_univ_succ] using hsum
   have u0 : turn 0 ≤ 53 * Real.pi / 100 := by nlinarith [hu 0, Real.pi_pos]
   have u1 : turn 1 ≤ 53 * Real.pi / 100 := by nlinarith [hu 1, Real.pi_pos]
@@ -158,7 +151,7 @@ theorem pentagon_windows_have_adjacent_high
     (hsum : (∑ i, turn i) = 2 * Real.pi)
     (hclass : ∀ i, LowTurn (turn i) ∨ HighTurn (turn i)) :
     ∃ i : Fin 5, HighTurn (turn i) ∧ HighTurn (turn (next5 i)) := by
-  have hsum' : turn 0 + turn 1 + turn 2 + turn 3 + turn 4 = 2 * Real.pi := by
+  have hsum' : turn 0 + (turn 1 + (turn 2 + (turn 3 + turn 4))) = 2 * Real.pi := by
     simpa [Fin.sum_univ_succ] using hsum
   have h0 := hclass 0
   have h1 := hclass 1
