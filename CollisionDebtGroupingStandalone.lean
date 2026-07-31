@@ -1,5 +1,7 @@
 import NegativeChargeSelectionStandalone
 
+set_option linter.unusedSectionVars false
+
 /-!
 # Grouping collision-owner debt by physical edge
 
@@ -54,12 +56,17 @@ theorem collision_debt_grouped :
       · rw [if_pos hcol]
         have hedge : S.edge c ∈ collisionEdges S :=
           Finset.mem_filter.mpr ⟨Finset.mem_univ _, hcol⟩
-        apply Finset.sum_eq_single (S.edge c)
-        · intro e he hne
-          have hneq : S.edge c ≠ e := Ne.symm hne
-          simp [hneq]
-        · intro hnot
-          exact (hnot hedge).elim
+        calc
+          (∑ e ∈ collisionEdges S,
+              if S.edge c = e then debt charge c else 0) =
+              (if S.edge c = S.edge c then debt charge c else 0) := by
+            apply Finset.sum_eq_single (S.edge c)
+            · intro e he hne
+              have hneq : S.edge c ≠ e := Ne.symm hne
+              simp [hneq]
+            · intro hnot
+              exact (hnot hedge).elim
+          _ = debt charge c := by simp
       · rw [if_neg hcol]
         apply Finset.sum_eq_zero
         intro e he
