@@ -39,5 +39,6 @@ roots = [
   "NegativeChargeSelectionStandalone",
   "SelectedChargeLedgerStandalone",
   "CollisionDebtGroupingStandalone",
-  "CapacityBankStandalone"
+  "CapacityBankStandalone",
+  "SelectedResourceClosureStandalone"
 ]
