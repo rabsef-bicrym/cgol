@@ -38,5 +38,6 @@ roots = [
   "RoleCapacityStandalone",
   "NegativeChargeSelectionStandalone",
   "SelectedChargeLedgerStandalone",
-  "CollisionDebtGroupingStandalone"
+  "CollisionDebtGroupingStandalone",
+  "CapacityBankStandalone"
 ]
