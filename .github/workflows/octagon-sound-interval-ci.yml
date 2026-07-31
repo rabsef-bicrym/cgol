@@ -121,7 +121,8 @@ jobs:
             NegativeChargeSelectionStandalone.lean \
             CollisionDebtGroupingStandalone.lean \
             SelectedChargeLedgerStandalone.lean \
-            CapacityBankStandalone.lean
+            CapacityBankStandalone.lean \
+            SelectedResourceClosureStandalone.lean
 
       - name: Kernel-check imported finite certificate
         shell: bash
