@@ -1,5 +1,7 @@
 import NegativeChargeSelectionStandalone
 
+set_option linter.unusedSectionVars false
+
 /-!
 # Finite net-charge closure with a derived debt partition
 
