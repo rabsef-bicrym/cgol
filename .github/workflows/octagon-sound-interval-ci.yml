@@ -118,7 +118,8 @@ jobs:
             NeighborRangeReductionStandalone.lean \
             SelectedEdgePartitionStandalone.lean \
             RoleCapacityStandalone.lean \
-            NegativeChargeSelectionStandalone.lean
+            NegativeChargeSelectionStandalone.lean \
+            SelectedChargeLedgerStandalone.lean
 
       - name: Kernel-check imported finite certificate
         shell: bash
