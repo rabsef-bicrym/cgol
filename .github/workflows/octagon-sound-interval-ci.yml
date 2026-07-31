@@ -119,7 +119,9 @@ jobs:
             SelectedEdgePartitionStandalone.lean \
             RoleCapacityStandalone.lean \
             NegativeChargeSelectionStandalone.lean \
-            SelectedChargeLedgerStandalone.lean
+            CollisionDebtGroupingStandalone.lean \
+            SelectedChargeLedgerStandalone.lean \
+            CapacityBankStandalone.lean
 
       - name: Kernel-check imported finite certificate
         shell: bash
