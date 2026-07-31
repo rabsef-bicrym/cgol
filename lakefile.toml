@@ -34,5 +34,6 @@ roots = [
   "DangerousFanClassificationStandalone",
   "DangerousOwnerRootStandalone",
   "NeighborRangeReductionStandalone",
-  "SelectedEdgePartitionStandalone"
+  "SelectedEdgePartitionStandalone",
+  "RoleCapacityStandalone"
 ]
