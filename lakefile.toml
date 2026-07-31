@@ -35,5 +35,6 @@ roots = [
   "DangerousOwnerRootStandalone",
   "NeighborRangeReductionStandalone",
   "SelectedEdgePartitionStandalone",
-  "RoleCapacityStandalone"
+  "RoleCapacityStandalone",
+  "NegativeChargeSelectionStandalone"
 ]
