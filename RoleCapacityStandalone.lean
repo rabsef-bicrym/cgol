@@ -1,5 +1,7 @@
 import Mathlib
 
+set_option linter.unusedSectionVars false
+
 /-!
 # Finite capacity maps for selected-edge resource roles
 
@@ -12,6 +14,8 @@ namespace RoleCapacityStandalone
 
 noncomputable section
 
+open scoped BigOperators
+
 variable {Role Resource Slot : Type*}
 variable [Fintype Role] [DecidableEq Role]
 variable [Fintype Resource] [DecidableEq Resource]
@@ -20,6 +24,27 @@ variable [Fintype Slot] [DecidableEq Slot]
 /-- Number of roles charged to one resource. -/
 def fiberCount (resource : Role → Resource) (c : Resource) : ℕ :=
   ((Finset.univ : Finset Role).filter fun r => resource r = c).card
+
+/-- Reindex any role sum by the number of roles charged to each resource. -/
+theorem sum_eq_counted (resource : Role → Resource) (value : Resource → ℝ) :
+    (∑ r : Role, value (resource r)) =
+      ∑ c : Resource, (fiberCount resource c : ℝ) * value c := by
+  classical
+  calc
+    (∑ r : Role, value (resource r)) =
+        ∑ r : Role, ∑ c : Resource,
+          if resource r = c then value c else 0 := by
+      apply Finset.sum_congr rfl
+      intro r hr
+      simp
+    _ = ∑ c : Resource, ∑ r : Role,
+          if resource r = c then value c else 0 := by
+      rw [Finset.sum_comm]
+    _ = ∑ c : Resource, (fiberCount resource c : ℝ) * value c := by
+      apply Finset.sum_congr rfl
+      intro c hc
+      rw [← Finset.sum_filter]
+      simp [fiberCount]
 
 /-- A role-to-slot injection whose slots are partitioned by resource and whose
 per-resource slot counts are known exactly. -/
