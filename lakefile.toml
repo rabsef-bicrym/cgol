@@ -36,5 +36,6 @@ roots = [
   "NeighborRangeReductionStandalone",
   "SelectedEdgePartitionStandalone",
   "RoleCapacityStandalone",
-  "NegativeChargeSelectionStandalone"
+  "NegativeChargeSelectionStandalone",
+  "SelectedChargeLedgerStandalone"
 ]
