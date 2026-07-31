@@ -3,10 +3,10 @@ import OctagonBenchmarkStandalone
 /-!
 # Side-count reduction outside the interval certificate
 
-Only quadrilateral and pentagonal cells can have negative net charge.  A
+Only quadrilateral and pentagonal cells can have negative net charge. A
 triangular opposite cell and every opposite cell with at least ten sides have
 so much affine structural reserve that the allocated `63/80` side share alone
-pays the worst possible quadrilateral debt.  Consequently the computer-assisted
+pays the worst possible quadrilateral debt. Consequently the computer-assisted
 local inequality is needed only for neighbor side counts four through nine.
 -/
 
@@ -76,7 +76,6 @@ lemma line_three : line 3 = p6 + 3 * OctagonBenchmarkStandalone.slope := by
 lemma line_six : line 6 = p6 := by
   unfold OctagonBenchmarkStandalone.line
   norm_num
-  ring
 
 lemma line_seven : line 7 = (p6 + p8) / 2 := by
   unfold OctagonBenchmarkStandalone.line OctagonBenchmarkStandalone.slope
