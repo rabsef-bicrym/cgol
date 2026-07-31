@@ -117,7 +117,8 @@ jobs:
             DangerousOwnerRootStandalone.lean \
             NeighborRangeReductionStandalone.lean \
             SelectedEdgePartitionStandalone.lean \
-            RoleCapacityStandalone.lean
+            RoleCapacityStandalone.lean \
+            NegativeChargeSelectionStandalone.lean
 
       - name: Kernel-check imported finite certificate
         shell: bash
