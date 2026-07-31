@@ -151,13 +151,17 @@ theorem ordinary_edge_injective :
     exact Finset.mem_filter.mpr
       ⟨(Finset.mem_filter.mp hb').1, hab.symm⟩
   rw [ho] at haMem hbMem
-  simpa using haMem.trans hbMem.symm
+  have hae : a = o := by simpa using haMem
+  have hbe : b = o := by simpa using hbMem
+  exact hae.trans hbe.symm
 
 /-- Every recorded collision edge has exactly two negative owners. -/
 theorem collision_edge_has_two
     {e : Edge} (he : e ∈ collisionEdges S) :
     (fiber S e).card = 2 := by
-  exact (Finset.mem_filter.mp he).2
+  have he' := he
+  change e ∈ (Finset.univ.filter fun x => fiberCount S x = 2) at he'
+  exact (Finset.mem_filter.mp he').2
 
 /-- Distinct collision edges have disjoint owner fibers. -/
 theorem collision_fibers_disjoint
