@@ -51,11 +51,12 @@ jobs:
           set -o pipefail
           lake build RoleCapacityStandalone NegativeChargeSelectionStandalone \
             CollisionDebtGroupingStandalone SelectedChargeLedgerStandalone \
-            CapacityBankStandalone --wfail 2>&1 | tee ledger-lean.log
+            CapacityBankStandalone SelectedResourceClosureStandalone \
+            --wfail 2>&1 | tee ledger-lean.log
           ! grep -nE '\bsorry\b|sorryAx|^[[:space:]]*axiom[[:space:]]' \
             RoleCapacityStandalone.lean NegativeChargeSelectionStandalone.lean \
             CollisionDebtGroupingStandalone.lean SelectedChargeLedgerStandalone.lean \
-            CapacityBankStandalone.lean
+            CapacityBankStandalone.lean SelectedResourceClosureStandalone.lean
 
       - name: Upload ledger build evidence
         if: always()
