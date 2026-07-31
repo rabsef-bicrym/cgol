@@ -1,5 +1,7 @@
 import Mathlib
 
+set_option linter.unusedSectionVars false
+
 /-!
 # Negative charge as selected-owner debt
 
